@@ -63,7 +63,9 @@ function PokemonStatCard({ pokemon }: { pokemon: Pokemon }) {
       </div>
       <div className="poke-pop-moves">
         {pokemon.moves.map((m) => (
-          <span key={m.name}>{m.name}</span>
+          <span className="poke-pop-move" key={m.name}>
+            {m.name} <TypeBadge type={m.type} />
+          </span>
         ))}
       </div>
     </div>

@@ -471,9 +471,9 @@ select {
 }
 
 /* v3: battle excitement */
+/* overflow stays visible so hover cards aren't clipped by the arena */
 .arena {
   background: radial-gradient(ellipse at 50% 120%, #1e293b 0%, #0f172a 60%);
-  overflow: hidden;
 }
 
 .sprite-box {
@@ -844,4 +844,10 @@ input.dup {
   color: #94a3b8;
   font-size: 0.75rem;
   font-weight: 700;
+}
+
+.poke-pop-move {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
 }
