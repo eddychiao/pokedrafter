@@ -101,26 +101,35 @@ const SELF_DESTRUCT_SURVIVAL_CHANCE = 0.15;
 
 async function pickMoves(moveUrls: string[], seed: string): Promise<Move[]> {
   const rng = mulberry32(fnv1a(`moves:${seed}`));
-  const candidates = shuffle(moveUrls, rng).slice(0, MAX_MOVE_LOOKUPS);
-  const details = await Promise.all(
-    candidates.map((url) => fetchJson<ApiMove>(url).catch(() => null)),
-  );
+  const shuffled = shuffle(moveUrls, rng);
 
-  const moves: Move[] = details
-    .filter((m): m is ApiMove => m !== null && m.power !== null && m.power > 0)
-    // Self-destruct moves are mostly filtered out; the rest of the list still fills up normally.
-    .filter((m) => !SELF_DESTRUCT_MOVES.has(m.name) || rng() < SELF_DESTRUCT_SURVIVAL_CHANCE)
-    .slice(0, MOVES_PER_POKEMON)
-    .map((m) => ({
-      name: m.name.replace(/-/g, ' '),
-      power: m.power ?? 0,
-      accuracy: m.accuracy ?? 100,
-      type: m.type.name,
-      damageClass: m.damage_class.name === 'special' ? 'special' : 'physical',
-      selfDestruct: SELF_DESTRUCT_MOVES.has(m.name),
-    }));
+  // Fetch in batches, expanding into the full movepool if the first batch doesn't yield
+  // enough damaging moves, so every Pokémon ends up with exactly MOVES_PER_POKEMON moves.
+  const moves: Move[] = [];
+  for (let cursor = 0; cursor < shuffled.length && moves.length < MOVES_PER_POKEMON; cursor += MAX_MOVE_LOOKUPS) {
+    const batch = shuffled.slice(cursor, cursor + MAX_MOVE_LOOKUPS);
+    const details = await Promise.all(batch.map((url) => fetchJson<ApiMove>(url).catch(() => null)));
 
-  return moves.length > 0 ? moves : [STRUGGLE];
+    for (const m of details) {
+      if (moves.length >= MOVES_PER_POKEMON) break;
+      if (!m || m.power === null || m.power <= 0) continue;
+      // Self-destruct moves are mostly filtered out; the rest of the list still fills up normally.
+      if (SELF_DESTRUCT_MOVES.has(m.name) && rng() >= SELF_DESTRUCT_SURVIVAL_CHANCE) continue;
+      moves.push({
+        name: m.name.replace(/-/g, ' '),
+        power: m.power,
+        accuracy: m.accuracy ?? 100,
+        type: m.type.name,
+        damageClass: m.damage_class.name === 'special' ? 'special' : 'physical',
+        selfDestruct: SELF_DESTRUCT_MOVES.has(m.name),
+      });
+    }
+  }
+
+  // Extremely move-poor Pokémon (e.g. Ditto) fall back to Struggle to still hit the count.
+  while (moves.length < MOVES_PER_POKEMON) moves.push(STRUGGLE);
+
+  return moves;
 }
 
 export interface FetchPokemonOptions {

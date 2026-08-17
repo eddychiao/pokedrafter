@@ -36,6 +36,7 @@ export function runTournament(combatants: Combatant[], salt: string): Tournament
     (x, y) =>
       y.wins - x.wins ||
       y.damageDealt - x.damageDealt ||
+      x.damageTaken - y.damageTaken ||
       x.combatant.team.name.localeCompare(y.combatant.team.name),
   );
 

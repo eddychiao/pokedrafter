@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Combatant, MatchResult } from '../types';
-import { damageDealtBy } from '../lib/battle';
+import { damageDealtBy, damageTakenBy } from '../lib/battle';
 import { TypeBadge } from './TypeBadge';
 import { PokemonStatCard, ShinyChip, TamperBadge } from './PokemonHoverCard';
 
@@ -33,7 +33,8 @@ interface RecordRow {
   combatant: Combatant;
   wins: number;
   losses: number;
-  damage: number;
+  damageDealt: number;
+  damageTaken: number;
 }
 
 function computeRecords(matches: MatchResult[], completedCount: number): RecordRow[] {
@@ -41,7 +42,7 @@ function computeRecords(matches: MatchResult[], completedCount: number): RecordR
   for (const match of matches) {
     for (const c of [match.a, match.b]) {
       if (!rows.has(c.team.name)) {
-        rows.set(c.team.name, { combatant: c, wins: 0, losses: 0, damage: 0 });
+        rows.set(c.team.name, { combatant: c, wins: 0, losses: 0, damageDealt: 0, damageTaken: 0 });
       }
     }
   }
@@ -50,19 +51,22 @@ function computeRecords(matches: MatchResult[], completedCount: number): RecordR
     rows.get(match.winner.team.name)!.wins++;
     rows.get(loser.team.name)!.losses++;
     for (const c of [match.a, match.b]) {
-      rows.get(c.team.name)!.damage += damageDealtBy(match, c);
+      const row = rows.get(c.team.name)!;
+      row.damageDealt += damageDealtBy(match, c);
+      row.damageTaken += damageTakenBy(match, c);
     }
   }
+  // Ties: most wins, then most damage dealt, then least damage taken.
   return [...rows.values()].sort(
     (x, y) =>
       y.wins - x.wins ||
-      x.losses - y.losses ||
-      y.damage - x.damage ||
+      y.damageDealt - x.damageDealt ||
+      x.damageTaken - y.damageTaken ||
       x.combatant.team.name.localeCompare(y.combatant.team.name),
   );
 }
 
-const RECORD_ROW_HEIGHT = 70;
+const RECORD_ROW_HEIGHT = 78;
 
 export function BattlePlayback({ matches, onDone }: Props) {
   const [matchIndex, setMatchIndex] = useState(0);
@@ -145,8 +149,7 @@ export function BattlePlayback({ matches, onDone }: Props) {
                   ].join(' ')}
                   key={side}
                 >
-                  <span className="fighter-team">{c.team.name}</span>
-                  <div className={`fighter-duo ${side === 'b' ? 'flip' : ''}`}>
+                  <span className="fighter-team">
                     <span className="hover-wrap">
                       <img
                         className="trainer-sprite-big"
@@ -155,19 +158,20 @@ export function BattlePlayback({ matches, onDone }: Props) {
                       />
                       <span className="hover-pop trainer-pop">{c.trainer.name}</span>
                     </span>
-                    <div className="sprite-box hover-wrap">
-                      <img src={c.pokemon.spriteUrl} alt={c.pokemon.name} />
-                      {c.pokemon.shiny && <span className="shiny-tag">✨</span>}
-                      {isHit && (
-                        <span
-                          className={`damage-pop ${event.crit || (event.effectiveness ?? 1) >= 2 ? 'big' : ''}`}
-                          key={`${matchIndex}-${eventIndex}`}
-                        >
-                          -{event.damage}
-                        </span>
-                      )}
-                      <PokemonStatCard pokemon={c.pokemon} />
-                    </div>
+                    {c.team.name}
+                  </span>
+                  <div className="sprite-box hover-wrap">
+                    <img src={c.pokemon.spriteUrl} alt={c.pokemon.name} />
+                    {c.pokemon.shiny && <span className="shiny-tag">✨</span>}
+                    {isHit && (
+                      <span
+                        className={`damage-pop ${event.crit || (event.effectiveness ?? 1) >= 2 ? 'big' : ''}`}
+                        key={`${matchIndex}-${eventIndex}`}
+                      >
+                        -{event.damage}
+                      </span>
+                    )}
+                    <PokemonStatCard pokemon={c.pokemon} />
                   </div>
                   <span className="fighter-name">
                     {c.pokemon.name}
@@ -219,13 +223,15 @@ export function BattlePlayback({ matches, onDone }: Props) {
                     style={{ transform: `translateY(${rank * RECORD_ROW_HEIGHT}px)` }}
                   >
                     <span className={`record-rank ${rank === 0 ? 'leader' : ''}`}>{rank + 1}</span>
-                    <span className="hover-wrap">
-                      <img className="trainer-sprite" src={trainer.spriteUrl} alt={trainer.name} />
-                      <span className="hover-pop trainer-pop">{trainer.name}</span>
-                    </span>
                     <img className="record-poke" src={pokemon.spriteUrl} alt={pokemon.name} />
                     <div className="record-names">
-                      <span className="record-team">{team.name}</span>
+                      <span className="record-team">
+                        <span className="hover-wrap">
+                          <img className="trainer-sprite" src={trainer.spriteUrl} alt={trainer.name} />
+                          <span className="hover-pop trainer-pop">{trainer.name}</span>
+                        </span>
+                        {team.name}
+                      </span>
                       <span className="record-poke-name">
                         {pokemon.name} {pokemon.shiny && '✨'} {pokemon.manual && '⚙'}
                       </span>
@@ -239,7 +245,8 @@ export function BattlePlayback({ matches, onDone }: Props) {
                       <span className="record-wl">
                         {row.wins}–{row.losses}
                       </span>
-                      <span className="record-dmg">{row.damage} dmg</span>
+                      <span className="record-dmg dmg-dealt">{row.damageDealt} dealt</span>
+                      <span className="record-dmg dmg-taken">{row.damageTaken} taken</span>
                     </div>
                   </div>
                 );

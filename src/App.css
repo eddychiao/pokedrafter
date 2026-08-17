@@ -617,19 +617,9 @@ img.trainer-sprite {
   grid-template-columns: 1fr 330px;
 }
 
-.fighter-duo {
-  display: flex;
-  align-items: flex-end;
-  gap: 0.5rem;
-}
-
-.fighter-duo.flip {
-  flex-direction: row-reverse;
-}
-
 img.trainer-sprite-big {
-  width: 96px;
-  height: 96px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
   object-position: bottom;
   image-rendering: pixelated;
@@ -781,6 +771,9 @@ img.record-poke {
 }
 
 .record-team {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
   font-weight: 700;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -821,8 +814,7 @@ img.record-poke {
 }
 
 .record-dmg {
-  color: #94a3b8;
-  font-size: 0.75rem;
+  font-size: 0.68rem;
 }
 
 /* v6: keep-seeds prompt */
