@@ -1,47 +1,41 @@
-import type { DraftConfig } from '../types';
+import { track } from '@vercel/analytics';
 import type { TournamentResult } from './tournament';
-import { APP_VERSION } from '../version';
 
 /**
- * Serverless logging API — deployed separately on Vercel (see /api). Works cross-origin
- * from GitHub Pages too, since the API sets permissive CORS headers.
+ * Logs one Vercel Analytics custom event per generated Pokémon once a draft's battles
+ * finish. Requires the site to actually be served from a Vercel deployment (the tracking
+ * script proxies through Vercel's edge network) and a **Pro** team — Custom Events aren't
+ * available on the free Hobby plan at all, and Pro caps you at 2 properties per event
+ * (8 with the paid Web Analytics Plus add-on). Everything below is packed into 2 compact
+ * delimited strings to fit that base limit. See README for the plan requirement.
+ *
+ * Fire-and-forget: track() is synchronous/non-blocking and never throws, so this can't
+ * affect the actual battle flow either way.
  */
-const API_BASE = 'https://pokedrafter.vercel.app';
+export function logTournamentResult(result: TournamentResult): void {
+  result.standings.forEach((s, i) => {
+    const { team, trainer, pokemon } = s.combatant;
 
-/** Fire-and-forget: analytics must never break or slow down the actual battle flow. */
-export function logTournamentResult(draft: DraftConfig, result: TournamentResult): void {
-  const rows = result.standings.map((s, i) => ({
-    teamName: s.combatant.team.name,
-    trainerName: s.combatant.trainer.name,
-    trainerElite: s.combatant.trainer.elite,
-    pokemonId: s.combatant.pokemon.id,
-    pokemonName: s.combatant.pokemon.name,
-    pokemonTypes: s.combatant.pokemon.types,
-    isShiny: s.combatant.pokemon.shiny,
-    hasPokerus: s.combatant.pokemon.pokerus,
-    berry: s.combatant.pokemon.berry ?? null,
-    isManual: s.combatant.pokemon.manual,
-    wins: s.wins,
-    losses: s.losses,
-    damageDealt: s.damageDealt,
-    damageTaken: s.damageTaken,
-    finalRank: i + 1,
-  }));
+    const flags = [
+      pokemon.shiny && 'shiny',
+      pokemon.pokerus && 'pokerus',
+      pokemon.berry ?? null,
+      pokemon.manual && 'manual',
+      trainer.elite && 'elite',
+    ]
+      .filter(Boolean)
+      .join(',');
 
-  const body = JSON.stringify({
-    runId: draft.salt,
-    appVersion: APP_VERSION,
-    numTeams: draft.teams.length,
-    generations: draft.generations.join(','),
-    rows,
-  });
+    // pokemon: species + types + any special flags
+    const pokemonField = `${pokemon.name}|${pokemon.types.join('/')}|${flags}`.slice(0, 255);
+    // result: team/trainer, final placement, and the battle stats that produced it
+    const resultField =
+      `${team.name}|${trainer.name}|rank ${i + 1}|${s.wins}-${s.losses}|` +
+      `dealt ${s.damageDealt}|taken ${s.damageTaken}`;
 
-  void fetch(`${API_BASE}/api/log-run`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body,
-    keepalive: true,
-  }).catch(() => {
-    // Logging is best-effort — a failed request shouldn't surface to the user.
+    track('pokemon_generated', {
+      pokemon: pokemonField,
+      result: resultField.slice(0, 255),
+    });
   });
 }

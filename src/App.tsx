@@ -50,7 +50,7 @@ export default function App() {
       );
       const result = runTournament(combatants, draft.salt);
       setTournament(result);
-      logTournamentResult(draft, result);
+      logTournamentResult(result);
       setPhase({ name: 'battle' });
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load Pokémon data.');

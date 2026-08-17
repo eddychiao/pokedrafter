@@ -23,15 +23,18 @@ npm run dev
 
 Pushes to `main` build and deploy to GitHub Pages via `.github/workflows/deploy.yml`. In the repo settings, set **Pages → Source → GitHub Actions** once.
 
-## Logging
+## Logging & analytics
 
-The frontend posts a row per Pokémon to a small logging API (`/api`) once each draft's
-battles finish — species, shiny/Pokérus/berry/manual-override flags, final wins/losses,
-damage dealt/taken, rank, and league metadata (team count, generations, app version).
-`/api/export.csv` returns the whole table as a downloadable CSV.
+Pageviews and per-Pokémon results log through **Vercel Web Analytics** (`@vercel/analytics`)
+— no backend of our own. `src/lib/logging.ts` fires one `track('pokemon_generated', ...)`
+custom event per Pokémon once a draft's battles finish (species/types/shiny/Pokérus/berry/
+manual-override flags, team & trainer, final rank, wins/losses, damage dealt/taken). View
+and export it from the Vercel dashboard's **Analytics → Events** panel.
 
-The API needs a Postgres database attached (`DATABASE_URL` env var — the table auto-creates
-on first write, no manual SQL needed) and a host that can run serverless functions, since
-GitHub Pages only serves static files. Logging is fire-and-forget from the client: if the
-API isn't deployed or is unreachable, the app behaves exactly as before and just skips
-logging that run.
+This only works when the site is actually served from a Vercel deployment (the tracking
+script proxies through Vercel's edge network — it silently does nothing on GitHub Pages),
+and **Custom Events require a Pro team** — they're not available on the free Hobby plan at
+all. Pro also caps you at 2 properties per event (8 with the paid Web Analytics Plus
+add-on), which is why each event packs its fields into two delimited strings instead of one
+per field. Logging is otherwise fire-and-forget: if Analytics isn't set up or the event is
+dropped, the app behaves exactly as before.
