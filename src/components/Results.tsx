@@ -64,8 +64,11 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
                 {s.combatant.team.name}
                 <span className="standing-trainer-name">({s.combatant.trainer.name})</span>
               </span>
-              <span className="standing-pokemon">
-                {s.combatant.pokemon.name}
+              <div className="standing-detail">
+                <span className="standing-pokemon">{s.combatant.pokemon.name}</span>
+                {s.combatant.pokemon.types.map((t) => (
+                  <TypeBadge key={t} type={t} />
+                ))}
                 {s.combatant.pokemon.shiny && <span className="shiny-chip">✨ shiny</span>}
                 {s.combatant.pokemon.pokerus && <PokerusChip />}
                 {s.combatant.pokemon.manual && (
@@ -73,19 +76,15 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
                     ⚙ set
                   </span>
                 )}
-              </span>
-              <div className="standing-types">
-                {s.combatant.pokemon.types.map((t) => (
-                  <TypeBadge key={t} type={t} />
-                ))}
+                <span className="standing-dmg dmg-dealt">{s.damageDealt} dmg dealt</span>
+                <span className="standing-dmg-sep">·</span>
+                <span className="standing-dmg dmg-taken">{s.damageTaken} dmg taken</span>
               </div>
             </div>
             <div className="record">
               <span className="record-wl-badge">
                 {s.wins}W – {s.losses}L
               </span>
-              <span className="record-dmg-line dmg-dealt">{s.damageDealt} dealt</span>
-              <span className="record-dmg-line dmg-taken">{s.damageTaken} taken</span>
             </div>
           </li>
         ))}
