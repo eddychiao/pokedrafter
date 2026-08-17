@@ -80,14 +80,16 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
                     ⚙ set
                   </span>
                 )}
-                <span className="standing-dmg dmg-dealt">{s.damageDealt} dmg dealt</span>
-                <span className="standing-dmg-sep">·</span>
-                <span className="standing-dmg dmg-taken">{s.damageTaken} dmg taken</span>
               </div>
             </div>
             <div className="record">
               <span className="record-wl-badge">
                 {s.wins}W – {s.losses}L
+              </span>
+              <span className="standing-dmg">
+                <span className="dmg-dealt">{s.damageDealt} dmg dealt</span>
+                <span className="standing-dmg-sep"> · </span>
+                <span className="dmg-taken">{s.damageTaken} dmg taken</span>
               </span>
             </div>
           </li>
@@ -99,7 +101,7 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
           {copied === 'link' ? 'Link copied!' : 'Copy share link'}
         </button>
         <button onClick={() => void copyResultsText()}>
-          {copied === 'text' ? 'Copied!' : 'Copy results text'}
+          {copied === 'text' ? 'Copied!' : 'Copy draft order'}
         </button>
         <button onClick={onReplay}>Replay battles</button>
         <button onClick={() => setShowNewDraft(true)}>New draft</button>

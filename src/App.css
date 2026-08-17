@@ -1365,3 +1365,55 @@ input.dup {
     display: inline;
   }
 }
+
+/* v14: damage line right-aligned under the W-L pill */
+.results .record {
+  gap: 0.2rem;
+  align-items: flex-end;
+}
+
+.standing-dmg {
+  font-size: 0.68rem;
+  white-space: nowrap;
+  text-align: right;
+}
+
+@media (max-width: 720px) {
+  /* Keep W-L pill with damage stacked under it, pinned right, on phones too */
+  .results .record {
+    flex-direction: column;
+    align-items: flex-end;
+    width: auto;
+    gap: 0.2rem;
+  }
+
+  .standing-dmg {
+    font-size: 0.62rem;
+  }
+
+  .results .standing {
+    flex-wrap: nowrap;
+  }
+
+  .standing-detail {
+    gap: 0.25rem;
+  }
+
+  .standing-detail .type-badge {
+    padding: 0.05rem 0.35rem;
+    font-size: 0.6rem;
+  }
+}
+
+@media (max-width: 520px) {
+  /* Narrow phones: stack dealt/taken as two tiny lines under the pill */
+  .standing-dmg-sep {
+    display: none;
+  }
+
+  .standing-dmg .dmg-dealt,
+  .standing-dmg .dmg-taken {
+    display: block;
+    text-align: right;
+  }
+}
