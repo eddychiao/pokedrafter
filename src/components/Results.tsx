@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { DraftConfig, Standing } from '../types';
 import { shareUrl } from '../lib/share';
-import { LEVEL } from '../lib/battle';
+import { PokemonStatCard } from './PokemonHoverCard';
 
 export interface NewDraftOptions {
   keepNames: boolean;
@@ -44,7 +44,10 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
         {standings.map((s, i) => (
           <li key={s.combatant.team.name} className={`standing rank-${i + 1}`}>
             <span className="rank">#{i + 1}</span>
-            <img src={s.combatant.pokemon.spriteUrl} alt={s.combatant.pokemon.name} />
+            <span className="hover-wrap">
+              <img src={s.combatant.pokemon.spriteUrl} alt={s.combatant.pokemon.name} />
+              <PokemonStatCard pokemon={s.combatant.pokemon} />
+            </span>
             <div className="standing-info">
               <span className="standing-team">
                 <img
@@ -57,7 +60,6 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
               </span>
               <span className="standing-pokemon">
                 {s.combatant.trainer.name} · {s.combatant.pokemon.name}
-                <span className="level-tag">Lv.{LEVEL}</span>
                 {s.combatant.pokemon.shiny && <span className="shiny-chip">✨ shiny</span>}
                 {s.combatant.pokemon.manual && (
                   <span className="tamper-badge" title="Manually set in admin mode">
@@ -67,7 +69,11 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
               </span>
             </div>
             <span className="record">
-              {s.wins}W–{s.losses}L · {s.damageDealt} dmg
+              {s.wins}W–{s.losses}L
+              <br />
+              <span className="dmg-dealt">{s.damageDealt} dmg dealt</span>
+              <br />
+              <span className="dmg-taken">{s.damageTaken} dmg taken</span>
             </span>
           </li>
         ))}

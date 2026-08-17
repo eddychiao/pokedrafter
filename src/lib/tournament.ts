@@ -1,5 +1,5 @@
 import type { Combatant, MatchResult, Standing } from '../types';
-import { damageDealtBy, simulateBattle } from './battle';
+import { damageDealtBy, damageTakenBy, simulateBattle } from './battle';
 import { fnv1a, mulberry32, shuffle } from './rng';
 
 export interface TournamentResult {
@@ -28,6 +28,7 @@ export function runTournament(combatants: Combatant[], salt: string): Tournament
       wins,
       losses: played.length - wins,
       damageDealt: played.reduce((sum, m) => sum + damageDealtBy(m, combatant), 0),
+      damageTaken: played.reduce((sum, m) => sum + damageTakenBy(m, combatant), 0),
     };
   });
 

@@ -91,4 +91,5 @@ export interface Standing {
   wins: number;
   losses: number;
   damageDealt: number;
+  damageTaken: number;
 }

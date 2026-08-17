@@ -164,3 +164,17 @@ export function damageDealtBy(result: MatchResult, combatant: Combatant): number
   }
   return total;
 }
+
+export function damageTakenBy(result: MatchResult, combatant: Combatant): number {
+  const isA = result.a === combatant;
+  let total = 0;
+  let prevA = result.events[0]?.maxHpA ?? 0;
+  let prevB = result.events[0]?.maxHpB ?? 0;
+  for (const event of result.events) {
+    if (isA) total += Math.max(0, prevA - event.hpA);
+    else total += Math.max(0, prevB - event.hpB);
+    prevA = event.hpA;
+    prevB = event.hpB;
+  }
+  return total;
+}
