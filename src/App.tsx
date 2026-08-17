@@ -10,6 +10,7 @@ import { BattlePlayback } from './components/BattlePlayback';
 import { Results } from './components/Results';
 import { Masterball } from './components/Masterball';
 import { LoadingScreen } from './components/LoadingScreen';
+import { logTournamentResult } from './lib/logging';
 import { APP_VERSION } from './version';
 import './App.css';
 
@@ -47,7 +48,9 @@ export default function App() {
           return { team, trainer: seedToTrainer(saltedSeed), pokemon };
         }),
       );
-      setTournament(runTournament(combatants, draft.salt));
+      const result = runTournament(combatants, draft.salt);
+      setTournament(result);
+      logTournamentResult(draft, result);
       setPhase({ name: 'battle' });
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Failed to load Pokémon data.');
