@@ -4,6 +4,7 @@ import { fetchPokemon, seedToPokemonId } from './lib/pokeapi';
 import { seedToTrainer } from './lib/trainers';
 import { runTournament, type TournamentResult } from './lib/tournament';
 import { configFromUrl } from './lib/share';
+import { clearSetup } from './lib/setupStorage';
 import { SetupForm } from './components/SetupForm';
 import { BattlePlayback } from './components/BattlePlayback';
 import { Results } from './components/Results';
@@ -96,6 +97,7 @@ export default function App() {
           onNewDraft={({ keepNames, keepSeeds }) => {
             window.location.hash = '';
             setTournament(null);
+            if (!keepNames && !keepSeeds) clearSetup();
             setConfig(
               keepNames || keepSeeds
                 ? {

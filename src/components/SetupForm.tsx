@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import type { DraftConfig, TeamConfig } from '../types';
 import { ALL_GENERATIONS } from '../lib/pokeapi';
 import { randomSalt } from '../lib/rng';
 import { loadSpeciesList, type SpeciesOption } from '../lib/speciesList';
+import { loadSetup, saveSetup } from '../lib/setupStorage';
 
 interface Props {
   initialConfig: DraftConfig | null;
@@ -39,15 +40,27 @@ function nearestTeamCount(count: number): number {
 }
 
 export function SetupForm({ initialConfig, onStart }: Props) {
+  // A share link or a carried-over draft always wins; otherwise fall back to whatever was
+  // last typed here, so a refresh doesn't wipe out an in-progress setup.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const saved = useMemo(() => (initialConfig ? null : loadSetup()), []);
+
   const [teams, setTeams] = useState<TeamConfig[]>(() =>
-    blankTeams(nearestTeamCount(initialConfig?.teams.length ?? 10), initialConfig?.teams),
+    blankTeams(
+      nearestTeamCount(initialConfig?.teams.length ?? saved?.teams.length ?? 10),
+      initialConfig?.teams ?? saved?.teams,
+    ),
   );
   const [generations, setGenerations] = useState<number[]>(
-    initialConfig?.generations ?? ALL_GENERATIONS,
+    initialConfig?.generations ?? saved?.generations ?? ALL_GENERATIONS,
   );
   const [error, setError] = useState('');
-  const [adminMode, setAdminMode] = useState(false);
+  const [adminMode, setAdminMode] = useState(saved?.adminMode ?? false);
   const [species, setSpecies] = useState<SpeciesOption[]>([]);
+
+  useEffect(() => {
+    saveSetup({ teams, generations, adminMode });
+  }, [teams, generations, adminMode]);
 
   useEffect(() => {
     if (adminMode && species.length === 0) {
