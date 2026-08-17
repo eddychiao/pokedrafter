@@ -1,5 +1,6 @@
 import type { Pokemon } from '../types';
 import { LEVEL } from '../lib/battle';
+import { ITEM_SPRITES } from '../lib/itemSprites';
 import { TypeBadge } from './TypeBadge';
 
 export function ShinyChip() {
@@ -22,6 +23,19 @@ export function PokerusChip() {
   return (
     <span className="pokerus-chip" title="Pokérus — slightly boosted stats">
       <PokerusIcon /> pkrs
+    </span>
+  );
+}
+
+export function BerryChip({ berry }: { berry: 'oran' | 'sitrus' }) {
+  const label = berry === 'oran' ? 'Oran Berry' : 'Sitrus Berry';
+  const heal = berry === 'oran' ? '10%' : '25%';
+  return (
+    <span
+      className="berry-chip"
+      title={`${label} — heals ${heal} of max HP once per battle when HP drops below half`}
+    >
+      <img src={ITEM_SPRITES[berry]} alt={label} width={16} height={16} /> {berry}
     </span>
   );
 }
@@ -54,6 +68,7 @@ export function PokemonStatCard({ pokemon }: { pokemon: Pokemon }) {
         </span>
         {pokemon.shiny && <ShinyChip />}
         {pokemon.pokerus && <PokerusChip />}
+        {pokemon.berry && <BerryChip berry={pokemon.berry} />}
         {pokemon.manual && <TamperBadge />}
       </div>
       <div className="poke-pop-types">

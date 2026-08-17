@@ -5,6 +5,8 @@ import { ALL_GENERATIONS } from '../lib/pokeapi';
 import { randomSalt } from '../lib/rng';
 import { loadSpeciesList, type SpeciesOption } from '../lib/speciesList';
 import { loadSetup, saveSetup } from '../lib/setupStorage';
+import { ITEM_SPRITES } from '../lib/itemSprites';
+import { PokerusIcon } from './PokemonHoverCard';
 
 interface Props {
   initialConfig: DraftConfig | null;
@@ -171,24 +173,37 @@ export function SetupForm({ initialConfig, onStart }: Props) {
         />
         Admin mode — manually set a team's Pokémon
       </label>
+      {adminMode && (
+        <p className="admin-disclaimer">
+          ⚠ Heads up: manually set Pokémon are publicly marked with a "⚙ set" badge in the battle,
+          leaderboard, and results — everyone will know they weren't rolled from a seed.
+        </p>
+      )}
 
       <details className="advanced-settings">
         <summary>Additional settings</summary>
         <div className="feature-toggles">
           <button
             className={`feature-toggle ${features.pokerus ? 'active' : ''}`}
+            title="Pokérus: 3% chance a Pokémon catches a rare beneficial virus that slightly boosts its stats"
             onClick={() => setFeatures((f) => ({ ...f, pokerus: !f.pokerus }))}
           >
-            🦠 Pokérus
+            <PokerusIcon size={14} /> Pokérus
           </button>
-          <span className="feature-disabled-wrap" title="Coming soon!">
+          <span
+            className="feature-disabled-wrap"
+            title="Coming soon! Berries: a held Oran or Sitrus Berry heals a Pokémon once per battle when its HP drops below half"
+          >
             <button className="feature-toggle" disabled>
-              🍒 Berries
+              <img src={ITEM_SPRITES.sitrus} alt="" width={16} height={16} /> Berries
             </button>
           </span>
-          <span className="feature-disabled-wrap" title="Coming soon!">
+          <span
+            className="feature-disabled-wrap"
+            title="Coming soon! Items: held items (like Leftovers) with effects during battle"
+          >
             <button className="feature-toggle" disabled>
-              🎒 Items
+              <img src={ITEM_SPRITES.leftovers} alt="" width={16} height={16} /> Items
             </button>
           </span>
         </div>

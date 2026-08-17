@@ -1,6 +1,7 @@
-import type { DraftConfig, TeamConfig } from '../types';
+import type { DraftConfig } from '../types';
 import { DEFAULT_FEATURES } from '../types';
 import { ALL_GENERATIONS, GENERATIONS } from './pokeapi';
+import { sanitizeSalt, sanitizeTeams } from './sanitize';
 
 export function encodeConfig(config: DraftConfig): string {
   const payload = {
@@ -24,22 +25,25 @@ export function decodeConfig(encoded: string): DraftConfig | null {
     const rawTeams: unknown[] = Array.isArray(payload) ? payload : payload.t;
     if (!Array.isArray(rawTeams)) return null;
 
-    const teams = rawTeams.map((entry) => {
-      const [name, seed, pokemonId, shiny] = entry as unknown[];
-      const manual: TeamConfig['manual'] =
-        pokemonId != null || shiny != null
-          ? {
-              pokemonId: pokemonId != null ? Number(pokemonId) : undefined,
-              shiny: shiny == null ? undefined : shiny === 1,
-            }
-          : undefined;
-      return { name: String(name ?? ''), seed: String(seed ?? ''), manual };
-    });
-    if (teams.length < 2) return null;
+    // All fields are attacker-controlled: length-clamp, bound-check, and type-check everything.
+    const teams = sanitizeTeams(
+      rawTeams.map((entry) => {
+        const [name, seed, pokemonId, shiny] = entry as unknown[];
+        return {
+          name,
+          seed,
+          manual:
+            pokemonId != null || shiny != null
+              ? { pokemonId, shiny: shiny === 1 ? true : undefined }
+              : undefined,
+        };
+      }),
+    );
+    if (!teams) return null;
 
     const rawGens: unknown[] = Array.isArray(payload) ? ALL_GENERATIONS : (payload.g ?? ALL_GENERATIONS);
     const generations = rawGens.map(Number).filter((g) => g in GENERATIONS);
-    const salt = Array.isArray(payload) ? '' : String(payload.s ?? '');
+    const salt = Array.isArray(payload) ? '' : sanitizeSalt(payload.s);
     const rawFeatures = Array.isArray(payload) ? null : payload.f;
     const features = Array.isArray(rawFeatures)
       ? { pokerus: rawFeatures[0] === 1, berries: rawFeatures[1] === 1, items: rawFeatures[2] === 1 }

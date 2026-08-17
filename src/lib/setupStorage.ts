@@ -1,5 +1,7 @@
 import type { FeatureOptions, TeamConfig } from '../types';
 import { DEFAULT_FEATURES } from '../types';
+import { GENERATIONS } from './pokeapi';
+import { sanitizeTeams } from './sanitize';
 
 const STORAGE_KEY = 'pokedraft:setup';
 
@@ -23,15 +25,21 @@ export function loadSetup(): SavedSetup | null {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw);
-    if (!Array.isArray(parsed.teams) || !Array.isArray(parsed.generations)) return null;
+    // Storage contents are untrusted (user- or extension-writable): sanitize like a share link.
+    const teams = sanitizeTeams(parsed.teams);
+    if (!teams || !Array.isArray(parsed.generations)) return null;
+    const generations = parsed.generations.map(Number).filter((g: number) => g in GENERATIONS);
+    const rawFeatures = parsed.features && typeof parsed.features === 'object' ? parsed.features : {};
     return {
-      teams: parsed.teams,
-      generations: parsed.generations,
+      teams,
+      generations:
+        generations.length > 0 ? generations : Object.keys(GENERATIONS).map(Number),
       adminMode: parsed.adminMode === true,
-      features:
-        parsed.features && typeof parsed.features === 'object'
-          ? { ...DEFAULT_FEATURES, ...parsed.features }
-          : DEFAULT_FEATURES,
+      features: {
+        pokerus: typeof rawFeatures.pokerus === 'boolean' ? rawFeatures.pokerus : DEFAULT_FEATURES.pokerus,
+        berries: typeof rawFeatures.berries === 'boolean' ? rawFeatures.berries : DEFAULT_FEATURES.berries,
+        items: typeof rawFeatures.items === 'boolean' ? rawFeatures.items : DEFAULT_FEATURES.items,
+      },
     };
   } catch {
     return null;
