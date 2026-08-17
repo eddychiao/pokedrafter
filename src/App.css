@@ -665,26 +665,26 @@ img.trainer-sprite-big {
   display: inline-block;
 }
 
+/* Positioned by HoverTarget in JS (follows the cursor, clamped to viewport). */
+.hover-pop-float {
+  position: fixed;
+  z-index: 50;
+  max-width: min(280px, calc(100vw - 24px));
+  max-height: min(420px, calc(100vh - 24px));
+  overflow-y: auto;
+  pointer-events: none;
+}
+
 .hover-pop {
-  display: none;
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
   background: #182234;
   border: 1px solid #475569;
   border-radius: 12px;
   padding: 0.7rem 0.9rem;
-  z-index: 20;
   width: max-content;
+  max-width: 100%;
   box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
   text-align: left;
   font-size: 0.8rem;
-  pointer-events: none;
-}
-
-.hover-wrap:hover .hover-pop {
-  display: block;
 }
 
 .trainer-pop {
@@ -693,7 +693,8 @@ img.trainer-sprite-big {
 }
 
 .poke-pop {
-  min-width: 220px;
+  min-width: 200px;
+  font-size: 0.76rem;
 }
 
 .poke-pop-header {
@@ -1041,4 +1042,10 @@ input.dup {
   background: #f59e0b;
   border-color: #f59e0b;
   color: #1e1e1e;
+}
+
+.standing-types {
+  display: flex;
+  gap: 0.3rem;
+  margin-top: 0.3rem;
 }

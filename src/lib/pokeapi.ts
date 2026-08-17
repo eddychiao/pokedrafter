@@ -112,7 +112,9 @@ async function pickMoves(moveUrls: string[], seed: string): Promise<Move[]> {
 
     for (const m of details) {
       if (moves.length >= MOVES_PER_POKEMON) break;
-      if (!m || m.power === null || m.power <= 0) continue;
+      // Status moves (Growl, Toxic, Swords Dance, ...) deal no damage and aren't modeled by
+      // the battle sim, so they're excluded — checked both by power and damage class.
+      if (!m || m.power === null || m.power <= 0 || m.damage_class.name === 'status') continue;
       // Self-destruct moves are mostly filtered out; the rest of the list still fills up normally.
       if (SELF_DESTRUCT_MOVES.has(m.name) && rng() >= SELF_DESTRUCT_SURVIVAL_CHANCE) continue;
       moves.push({

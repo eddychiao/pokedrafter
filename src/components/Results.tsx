@@ -2,6 +2,8 @@ import { useState } from 'react';
 import type { DraftConfig, Standing } from '../types';
 import { shareUrl } from '../lib/share';
 import { PokemonStatCard } from './PokemonHoverCard';
+import { HoverTarget } from './HoverTarget';
+import { TypeBadge } from './TypeBadge';
 
 export interface NewDraftOptions {
   keepNames: boolean;
@@ -44,10 +46,9 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
         {standings.map((s, i) => (
           <li key={s.combatant.team.name} className={`standing rank-${i + 1}`}>
             <span className="rank">#{i + 1}</span>
-            <span className="hover-wrap">
+            <HoverTarget content={<PokemonStatCard pokemon={s.combatant.pokemon} />}>
               <img src={s.combatant.pokemon.spriteUrl} alt={s.combatant.pokemon.name} />
-              <PokemonStatCard pokemon={s.combatant.pokemon} />
-            </span>
+            </HoverTarget>
             <div className="standing-info">
               <span className="standing-team">
                 <img
@@ -68,6 +69,11 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
                   </span>
                 )}
               </span>
+              <div className="standing-types">
+                {s.combatant.pokemon.types.map((t) => (
+                  <TypeBadge key={t} type={t} />
+                ))}
+              </div>
             </div>
             <div className="record">
               <span className="record-wl-badge">

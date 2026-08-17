@@ -3,6 +3,7 @@ import type { Combatant, MatchResult } from '../types';
 import { damageDealtBy, damageTakenBy } from '../lib/battle';
 import { TypeBadge } from './TypeBadge';
 import { PokemonStatCard, ShinyChip, TamperBadge } from './PokemonHoverCard';
+import { HoverTarget } from './HoverTarget';
 
 interface Props {
   matches: MatchResult[];
@@ -155,17 +156,20 @@ export function BattlePlayback({ matches, onDone }: Props) {
                   key={side}
                 >
                   <span className="fighter-team">
-                    <span className="hover-wrap">
+                    <HoverTarget content={<span className="hover-pop trainer-pop">{c.trainer.name}</span>}>
                       <img
                         className="trainer-sprite-big"
                         src={c.trainer.spriteUrl}
                         alt={c.trainer.name}
                       />
-                      <span className="hover-pop trainer-pop">{c.trainer.name}</span>
-                    </span>
+                    </HoverTarget>
                     {c.team.name}
                   </span>
-                  <div className="sprite-box hover-wrap">
+                  <HoverTarget
+                    as="div"
+                    className="sprite-box"
+                    content={<PokemonStatCard pokemon={c.pokemon} />}
+                  >
                     <img src={c.pokemon.spriteUrl} alt={c.pokemon.name} />
                     {c.pokemon.shiny && <span className="shiny-tag">✨</span>}
                     {isHit && (
@@ -176,8 +180,7 @@ export function BattlePlayback({ matches, onDone }: Props) {
                         -{event.damage}
                       </span>
                     )}
-                    <PokemonStatCard pokemon={c.pokemon} />
-                  </div>
+                  </HoverTarget>
                   <span className="fighter-name">
                     {c.pokemon.name}
                     {c.pokemon.shiny && <ShinyChip />}
@@ -231,10 +234,9 @@ export function BattlePlayback({ matches, onDone }: Props) {
                     <img className="record-poke" src={pokemon.spriteUrl} alt={pokemon.name} />
                     <div className="record-names">
                       <span className="record-team">
-                        <span className="hover-wrap">
+                        <HoverTarget content={<span className="hover-pop trainer-pop">{trainer.name}</span>}>
                           <img className="trainer-sprite" src={trainer.spriteUrl} alt={trainer.name} />
-                          <span className="hover-pop trainer-pop">{trainer.name}</span>
-                        </span>
+                        </HoverTarget>
                         {team.name}
                       </span>
                       <span className="record-poke-name">
