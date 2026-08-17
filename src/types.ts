@@ -1,6 +1,15 @@
+export interface ManualOverride {
+  /** National dex ID, overriding the seed-derived Pokémon. */
+  pokemonId?: number;
+  /** Forces shiny on/off, overriding the random roll. */
+  shiny?: boolean;
+}
+
 export interface TeamConfig {
   name: string;
   seed: string;
+  /** Admin-mode overrides. Presence of this object marks the entry as manually tampered with. */
+  manual?: ManualOverride;
 }
 
 export interface DraftConfig {
@@ -25,6 +34,8 @@ export interface Move {
   accuracy: number;
   type: string;
   damageClass: 'physical' | 'special';
+  /** Moves like Explosion/Self-Destruct that KO the user regardless of the damage dealt. */
+  selfDestruct?: boolean;
 }
 
 export interface Pokemon {
@@ -36,6 +47,8 @@ export interface Pokemon {
   spriteUrl: string;
   animatedSpriteUrl: string;
   shiny: boolean;
+  /** True if the species or shininess was hand-picked in admin mode rather than rolled from the seed. */
+  manual: boolean;
 }
 
 export interface Trainer {
@@ -58,6 +71,7 @@ export interface BattleEvent {
   crit?: boolean;
   effectiveness?: number;
   faint?: boolean;
+  selfDestruct?: boolean;
   hpA: number;
   hpB: number;
   maxHpA: number;

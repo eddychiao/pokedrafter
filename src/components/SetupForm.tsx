@@ -1,7 +1,8 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import type { DraftConfig, TeamConfig } from '../types';
 import { ALL_GENERATIONS } from '../lib/pokeapi';
 import { randomSalt } from '../lib/rng';
+import { loadSpeciesList, type SpeciesOption } from '../lib/speciesList';
 
 interface Props {
   initialConfig: DraftConfig | null;
@@ -45,9 +46,34 @@ export function SetupForm({ initialConfig, onStart }: Props) {
     initialConfig?.generations ?? ALL_GENERATIONS,
   );
   const [error, setError] = useState('');
+  const [adminMode, setAdminMode] = useState(false);
+  const [species, setSpecies] = useState<SpeciesOption[]>([]);
+
+  useEffect(() => {
+    if (adminMode && species.length === 0) {
+      void loadSpeciesList().then(setSpecies);
+    }
+  }, [adminMode, species.length]);
+
+  const speciesByName = new Map(species.map((s) => [s.name, s.id]));
+  const speciesById = new Map(species.map((s) => [s.id, s.name]));
 
   const updateTeam = (index: number, patch: Partial<TeamConfig>) =>
     setTeams((prev) => prev.map((t, i) => (i === index ? { ...t, ...patch } : t)));
+
+  // Drops the manual object entirely once both overrides are cleared, so the "tampered" flag disappears.
+  const applyManual = (index: number, patch: TeamConfig['manual']) => {
+    const merged = { ...teams[index].manual, ...patch };
+    updateTeam(index, {
+      manual: merged.pokemonId === undefined && merged.shiny === undefined ? undefined : merged,
+    });
+  };
+
+  const setManualSpecies = (index: number, typedName: string) =>
+    applyManual(index, { pokemonId: speciesByName.get(typedName.trim().toLowerCase()) });
+
+  const setManualShiny = (index: number, checked: boolean) =>
+    applyManual(index, { shiny: checked ? true : undefined });
 
   const toggleGeneration = (gen: number) =>
     setGenerations((prev) => {
@@ -68,6 +94,7 @@ export function SetupForm({ initialConfig, onStart }: Props) {
     const filled = teams.map((t, i) => ({
       name: t.name.trim() || `Team ${i + 1}`,
       seed: t.seed.trim() || randomSalt(),
+      manual: t.manual,
     }));
     if (duplicated.size > 0) {
       setError('Team names must be unique — fix the highlighted rows.');
@@ -117,9 +144,18 @@ export function SetupForm({ initialConfig, onStart }: Props) {
         </div>
       </div>
 
+      <label className="admin-toggle">
+        <input
+          type="checkbox"
+          checked={adminMode}
+          onChange={(e) => setAdminMode(e.target.checked)}
+        />
+        Admin mode — manually set a team's Pokémon
+      </label>
+
       <div className="team-grid">
         {teams.map((team, i) => (
-          <div className="team-row" key={i}>
+          <div className={`team-row ${adminMode ? 'with-admin' : ''}`} key={i}>
             <span className="team-index">{i + 1}</span>
             <input
               placeholder={`Team ${i + 1} name`}
@@ -133,14 +169,43 @@ export function SetupForm({ initialConfig, onStart }: Props) {
               value={team.seed}
               onChange={(e) => updateTeam(i, { seed: e.target.value })}
             />
+            {adminMode && (
+              <>
+                <input
+                  key={String(species.length > 0)}
+                  className="admin-species-input"
+                  list="species-datalist"
+                  placeholder={species.length ? 'Pick Pokémon (optional)' : 'Loading dex...'}
+                  disabled={species.length === 0}
+                  defaultValue={team.manual?.pokemonId ? speciesById.get(team.manual.pokemonId) : ''}
+                  onChange={(e) => setManualSpecies(i, e.target.value)}
+                />
+                <label className="admin-shiny">
+                  <input
+                    type="checkbox"
+                    checked={team.manual?.shiny === true}
+                    onChange={(e) => setManualShiny(i, e.target.checked)}
+                  />
+                  Shiny
+                </label>
+                {team.manual && <span className="tamper-badge" title="Manually overridden">⚙ set</span>}
+              </>
+            )}
           </div>
         ))}
       </div>
+      {adminMode && (
+        <datalist id="species-datalist">
+          {species.map((s) => (
+            <option key={s.id} value={s.name} />
+          ))}
+        </datalist>
+      )}
 
       {error && <p className="error">{error}</p>}
 
       <button className="primary" onClick={handleStart}>
-        Gotta Rank 'Em All!
+        Let the Draft Battle Begin!
       </button>
       <p className="hint">
         Type anything as your seed — it becomes a random Pokémon when the battle starts. Leave it

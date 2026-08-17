@@ -95,6 +95,10 @@ const STRUGGLE: Move = { name: 'struggle', power: 50, accuracy: 100, type: 'norm
 const MAX_MOVE_LOOKUPS = 16;
 const MOVES_PER_POKEMON = 4;
 
+/** Moves that faint the user outright; kept rare so a draft doesn't get decided by a fluke KO. */
+const SELF_DESTRUCT_MOVES = new Set(['explosion', 'self-destruct', 'misty-explosion']);
+const SELF_DESTRUCT_SURVIVAL_CHANCE = 0.15;
+
 async function pickMoves(moveUrls: string[], seed: string): Promise<Move[]> {
   const rng = mulberry32(fnv1a(`moves:${seed}`));
   const candidates = shuffle(moveUrls, rng).slice(0, MAX_MOVE_LOOKUPS);
@@ -104,6 +108,8 @@ async function pickMoves(moveUrls: string[], seed: string): Promise<Move[]> {
 
   const moves: Move[] = details
     .filter((m): m is ApiMove => m !== null && m.power !== null && m.power > 0)
+    // Self-destruct moves are mostly filtered out; the rest of the list still fills up normally.
+    .filter((m) => !SELF_DESTRUCT_MOVES.has(m.name) || rng() < SELF_DESTRUCT_SURVIVAL_CHANCE)
     .slice(0, MOVES_PER_POKEMON)
     .map((m) => ({
       name: m.name.replace(/-/g, ' '),
@@ -111,12 +117,24 @@ async function pickMoves(moveUrls: string[], seed: string): Promise<Move[]> {
       accuracy: m.accuracy ?? 100,
       type: m.type.name,
       damageClass: m.damage_class.name === 'special' ? 'special' : 'physical',
+      selfDestruct: SELF_DESTRUCT_MOVES.has(m.name),
     }));
 
   return moves.length > 0 ? moves : [STRUGGLE];
 }
 
-export async function fetchPokemon(id: number, seed: string): Promise<Pokemon> {
+export interface FetchPokemonOptions {
+  /** Admin-mode: forces shiny on/off instead of rolling it from the seed. */
+  shinyOverride?: boolean;
+  /** Admin-mode: marks the result as manually tampered with, for UI display. */
+  manual?: boolean;
+}
+
+export async function fetchPokemon(
+  id: number,
+  seed: string,
+  options: FetchPokemonOptions = {},
+): Promise<Pokemon> {
   const data = await fetchJson<ApiPokemon>(`${API_BASE}/pokemon/${id}`);
 
   const [moves, stagesRemaining] = await Promise.all([
@@ -131,7 +149,7 @@ export async function fetchPokemon(id: number, seed: string): Promise<Pokemon> {
   const statOf = (name: string) =>
     Math.round((data.stats.find((s) => s.stat.name === name)?.base_stat ?? 50) * boost);
 
-  const shiny = mulberry32(fnv1a(`shiny:${seed}`))() < SHINY_CHANCE;
+  const shiny = options.shinyOverride ?? mulberry32(fnv1a(`shiny:${seed}`))() < SHINY_CHANCE;
   const artwork = data.sprites.other['official-artwork'];
   const spriteUrl =
     (shiny ? (artwork.front_shiny ?? data.sprites.front_shiny) : null) ??
@@ -155,5 +173,6 @@ export async function fetchPokemon(id: number, seed: string): Promise<Pokemon> {
     spriteUrl,
     animatedSpriteUrl: data.sprites.front_default ?? '',
     shiny,
+    manual: options.manual ?? false,
   };
 }

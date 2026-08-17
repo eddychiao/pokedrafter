@@ -1,9 +1,14 @@
-import type { DraftConfig } from '../types';
+import type { DraftConfig, TeamConfig } from '../types';
 import { ALL_GENERATIONS, GENERATIONS } from './pokeapi';
 
 export function encodeConfig(config: DraftConfig): string {
   const payload = {
-    t: config.teams.map((t) => [t.name, t.seed]),
+    t: config.teams.map((t) => [
+      t.name,
+      t.seed,
+      t.manual?.pokemonId ?? null,
+      t.manual?.shiny === undefined ? null : t.manual.shiny ? 1 : 0,
+    ]),
     g: config.generations,
     s: config.salt,
   };
@@ -17,10 +22,17 @@ export function decodeConfig(encoded: string): DraftConfig | null {
     const rawTeams: unknown[] = Array.isArray(payload) ? payload : payload.t;
     if (!Array.isArray(rawTeams)) return null;
 
-    const teams = rawTeams.map((entry) => ({
-      name: String((entry as unknown[])[0] ?? ''),
-      seed: String((entry as unknown[])[1] ?? ''),
-    }));
+    const teams = rawTeams.map((entry) => {
+      const [name, seed, pokemonId, shiny] = entry as unknown[];
+      const manual: TeamConfig['manual'] =
+        pokemonId != null || shiny != null
+          ? {
+              pokemonId: pokemonId != null ? Number(pokemonId) : undefined,
+              shiny: shiny == null ? undefined : shiny === 1,
+            }
+          : undefined;
+      return { name: String(name ?? ''), seed: String(seed ?? ''), manual };
+    });
     if (teams.length < 2) return null;
 
     const rawGens: unknown[] = Array.isArray(payload) ? ALL_GENERATIONS : (payload.g ?? ALL_GENERATIONS);

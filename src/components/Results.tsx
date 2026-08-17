@@ -59,6 +59,11 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
                 {s.combatant.trainer.name} · {s.combatant.pokemon.name}
                 <span className="level-tag">Lv.{LEVEL}</span>
                 {s.combatant.pokemon.shiny && <span className="shiny-chip">✨ shiny</span>}
+                {s.combatant.pokemon.manual && (
+                  <span className="tamper-badge" title="Manually set in admin mode">
+                    ⚙ set
+                  </span>
+                )}
               </span>
             </div>
             <span className="record">

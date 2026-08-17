@@ -8,6 +8,7 @@ import { SetupForm } from './components/SetupForm';
 import { BattlePlayback } from './components/BattlePlayback';
 import { Results } from './components/Results';
 import { Masterball } from './components/Masterball';
+import { LoadingScreen } from './components/LoadingScreen';
 import './App.css';
 
 type Phase =
@@ -31,10 +32,11 @@ export default function App() {
       const combatants: Combatant[] = await Promise.all(
         draft.teams.map(async (team) => {
           const saltedSeed = `${draft.salt}|${team.seed}`;
-          const pokemon = await fetchPokemon(
-            seedToPokemonId(saltedSeed, draft.generations),
-            saltedSeed,
-          );
+          const pokemonId = team.manual?.pokemonId ?? seedToPokemonId(saltedSeed, draft.generations);
+          const pokemon = await fetchPokemon(pokemonId, saltedSeed, {
+            shinyOverride: team.manual?.shiny,
+            manual: team.manual !== undefined,
+          });
           done++;
           setPhase({ name: 'loading', done, total: draft.teams.length });
           return { team, trainer: seedToTrainer(saltedSeed), pokemon };
@@ -71,19 +73,7 @@ export default function App() {
 
       {phase.name === 'setup' && <SetupForm initialConfig={config} onStart={start} />}
 
-      {phase.name === 'loading' && (
-        <div className="loading">
-          <p>
-            Summoning Pokémon... {phase.done}/{phase.total}
-          </p>
-          <div className="progress">
-            <div
-              className="progress-fill"
-              style={{ width: `${(phase.done / phase.total) * 100}%` }}
-            />
-          </div>
-        </div>
-      )}
+      {phase.name === 'loading' && <LoadingScreen done={phase.done} total={phase.total} />}
 
       {phase.name === 'battle' && tournament && (
         <BattlePlayback
@@ -107,6 +97,7 @@ export default function App() {
                     teams: config.teams.map((t) => ({
                       name: keepNames ? t.name : '',
                       seed: keepSeeds ? t.seed : '',
+                      manual: keepSeeds ? t.manual : undefined,
                     })),
                   }
                 : null,

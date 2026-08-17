@@ -851,3 +851,77 @@ input.dup {
   align-items: center;
   gap: 0.3rem;
 }
+
+/* v7: admin mode, tamper badge, self-destruct, loading flavor */
+.admin-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.admin-toggle input {
+  accent-color: #6366f1;
+  width: 1rem;
+  height: 1rem;
+}
+
+.team-row.with-admin {
+  grid-template-columns: 2rem 1fr 1fr 1fr auto auto;
+}
+
+.admin-species-input {
+  min-width: 0;
+}
+
+.admin-shiny {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8rem;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.admin-shiny input {
+  accent-color: #f59e0b;
+  width: 1rem;
+  height: 1rem;
+}
+
+.tamper-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.05rem 0.4rem;
+  margin-left: 0.4rem;
+  border-radius: 999px;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.5);
+  color: #a5b4fc;
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.loading-flavor {
+  margin-top: 0.75rem;
+  color: #64748b;
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+@media (max-width: 720px) {
+  .team-row.with-admin {
+    grid-template-columns: 1fr;
+    gap: 0.35rem;
+    padding: 0.5rem;
+    border: 1px solid #334155;
+    border-radius: 8px;
+  }
+}

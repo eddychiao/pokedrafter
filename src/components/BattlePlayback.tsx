@@ -32,6 +32,14 @@ function ShinyChip() {
   return <span className="shiny-chip">✨ shiny</span>;
 }
 
+function TamperBadge() {
+  return (
+    <span className="tamper-badge" title="Manually set in admin mode">
+      ⚙ set
+    </span>
+  );
+}
+
 function PokemonStatCard({ pokemon }: { pokemon: Pokemon }) {
   const rows: [string, number][] = [
     ['HP', pokemon.stats.hp],
@@ -47,6 +55,7 @@ function PokemonStatCard({ pokemon }: { pokemon: Pokemon }) {
         {pokemon.name}
         <span className="level-tag">Lv.{LEVEL}</span>
         {pokemon.shiny && <ShinyChip />}
+        {pokemon.manual && <TamperBadge />}
       </div>
       <div className="poke-pop-types">
         {pokemon.types.map((t) => (
@@ -216,6 +225,7 @@ export function BattlePlayback({ matches, onDone }: Props) {
                     {c.pokemon.name}
                     <span className="level-tag">Lv.{LEVEL}</span>
                     {c.pokemon.shiny && <ShinyChip />}
+                    {c.pokemon.manual && <TamperBadge />}
                   </span>
                   <div className="fighter-types">
                     {c.pokemon.types.map((t) => (
@@ -270,7 +280,7 @@ export function BattlePlayback({ matches, onDone }: Props) {
                     <div className="record-names">
                       <span className="record-team">{team.name}</span>
                       <span className="record-poke-name">
-                        {pokemon.name} {pokemon.shiny && '✨'}
+                        {pokemon.name} {pokemon.shiny && '✨'} {pokemon.manual && '⚙'}
                       </span>
                     </div>
                     <div className="record-stats">

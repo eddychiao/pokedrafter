@@ -106,22 +106,28 @@ export function simulateBattle(a: Combatant, b: Combatant, rng: Rng): MatchResul
       );
       defender.hp = Math.max(0, defender.hp - damage);
       attacker.damageDealt += damage;
+      if (move.selfDestruct) attacker.hp = 0;
 
       events.push(
         snapshot(
           `${attacker.combatant.pokemon.name} used ${move.name}!` +
             (crit ? ' A critical hit!' : '') +
-            describeEffectiveness(effectiveness),
+            describeEffectiveness(effectiveness) +
+            (move.selfDestruct ? ` ${attacker.combatant.pokemon.name} blew itself up!` : ''),
           {
             moveType: move.type,
             attacker: idx === 0 ? 'a' : 'b',
             damage,
             crit,
             effectiveness,
+            selfDestruct: move.selfDestruct,
           },
         ),
       );
 
+      if (attacker.hp <= 0) {
+        events.push(snapshot(`${attacker.combatant.pokemon.name} fainted!`, { faint: true }));
+      }
       if (defender.hp <= 0) {
         events.push(snapshot(`${defender.combatant.pokemon.name} fainted!`, { faint: true }));
       }
