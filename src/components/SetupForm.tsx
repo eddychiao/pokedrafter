@@ -15,6 +15,8 @@ interface Props {
 
 const TEAM_COUNTS = [4, 6, 8, 10, 12, 14, 16];
 
+const DEFAULT_GENERATIONS = [1, 2, 3, 4];
+
 const ROMAN_NUMERALS: Record<number, string> = {
   1: 'I', 2: 'II', 3: 'III', 4: 'IV', 5: 'V', 6: 'VI', 7: 'VII', 8: 'VIII', 9: 'IX',
 };
@@ -55,7 +57,7 @@ export function SetupForm({ initialConfig, onStart }: Props) {
     ),
   );
   const [generations, setGenerations] = useState<number[]>(
-    initialConfig?.generations ?? saved?.generations ?? ALL_GENERATIONS,
+    initialConfig?.generations ?? saved?.generations ?? DEFAULT_GENERATIONS,
   );
   const [error, setError] = useState('');
   const [adminMode, setAdminMode] = useState(saved?.adminMode ?? false);
@@ -214,18 +216,40 @@ export function SetupForm({ initialConfig, onStart }: Props) {
           <div className="team-row-group" key={i}>
             <div className="team-row">
               <span className="team-index">{i + 1}</span>
-              <input
-                placeholder={`Team ${i + 1} name`}
-                className={duplicated.has(effectiveNames[i]) ? 'dup' : ''}
-                value={team.name}
-                onChange={(e) => updateTeam(i, { name: e.target.value })}
-              />
-              <input
-                placeholder="Seed (any text or number)"
-                maxLength={100}
-                value={team.seed}
-                onChange={(e) => updateTeam(i, { seed: e.target.value })}
-              />
+              <span className="input-wrap">
+                <input
+                  placeholder={`Team ${i + 1} name`}
+                  className={duplicated.has(effectiveNames[i]) ? 'dup' : ''}
+                  value={team.name}
+                  onChange={(e) => updateTeam(i, { name: e.target.value })}
+                />
+                {team.name && (
+                  <button
+                    className="input-clear"
+                    aria-label="Clear team name"
+                    onClick={() => updateTeam(i, { name: '' })}
+                  >
+                    ×
+                  </button>
+                )}
+              </span>
+              <span className="input-wrap">
+                <input
+                  placeholder="Seed (any text or number)"
+                  maxLength={100}
+                  value={team.seed}
+                  onChange={(e) => updateTeam(i, { seed: e.target.value })}
+                />
+                {team.seed && (
+                  <button
+                    className="input-clear"
+                    aria-label="Clear seed"
+                    onClick={() => updateTeam(i, { seed: '' })}
+                  >
+                    ×
+                  </button>
+                )}
+              </span>
             </div>
             {adminMode && (
               <div className="admin-row">

@@ -63,8 +63,12 @@ interface ChainLink {
   evolves_to: ChainLink[];
 }
 
-/** Boost per unrealized evolution stage, so a Charmander isn't hopeless against a Charizard. */
-const EVOLUTION_STAGE_BOOST = 0.15;
+/**
+ * Stat multiplier by unrealized evolution stages. Non-linear on purpose: a base-stage mon
+ * with two evolutions ahead (Charmander) needs real help, while a mon with only one
+ * evolution (Growlithe) already has decent base stats and just gets a nudge.
+ */
+const STAGE_BOOSTS: Record<number, number> = { 0: 1, 1: 1.1, 2: 1.35 };
 
 /**
  * Gentle floor on post-boost base stat total: anything still below this (Caterpie, Magikarp...)
@@ -188,7 +192,7 @@ export async function fetchPokemon(
         ? ('oran' as const)
         : ('sitrus' as const)
       : undefined;
-  const evolutionBoost = 1 + EVOLUTION_STAGE_BOOST * speciesInfo.stagesRemaining;
+  const evolutionBoost = STAGE_BOOSTS[Math.min(2, speciesInfo.stagesRemaining)];
   const boostedTotal = data.stats.reduce((sum, s) => sum + s.base_stat * evolutionBoost, 0);
   const floorBoost = boostedTotal < MIN_BST ? MIN_BST / boostedTotal : 1;
   const boost = evolutionBoost * floorBoost * (pokerus ? POKERUS_BOOST : 1);

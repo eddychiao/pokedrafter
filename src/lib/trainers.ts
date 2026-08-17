@@ -1,5 +1,5 @@
 import type { Trainer } from '../types';
-import { fnv1a } from './rng';
+import { fnv1a, mulberry32 } from './rng';
 
 const SPRITE_BASE = 'https://play.pokemonshowdown.com/sprites/trainers';
 
@@ -39,7 +39,41 @@ const TRAINER_CLASSES: [label: string, file: string][] = [
   ['Waitress', 'waitress'],
 ];
 
+/** Rare pulls: gym leaders, Elite Four, and champions (sprites verified on Showdown). */
+const ELITE_TRAINERS: [label: string, file: string][] = [
+  ['Gym Leader Brock', 'brock'],
+  ['Gym Leader Misty', 'misty'],
+  ['Gym Leader Lt. Surge', 'ltsurge'],
+  ['Gym Leader Erika', 'erika'],
+  ['Gym Leader Sabrina', 'sabrina'],
+  ['Gym Leader Blaine', 'blaine'],
+  ['Gym Leader Giovanni', 'giovanni'],
+  ['Gym Leader Koga', 'koga'],
+  ['Gym Leader Whitney', 'whitney'],
+  ['Gym Leader Clair', 'clair'],
+  ['Gym Leader Volkner', 'volkner'],
+  ['Elite Four Bruno', 'bruno'],
+  ['Elite Four Will', 'will'],
+  ['Elite Four Karen', 'karen'],
+  ['Elite Four Flint', 'flint'],
+  ['Elite Four Drake', 'drake-gen3'],
+  ['Champion Lance', 'lance'],
+  ['Champion Cynthia', 'cynthia'],
+  ['Champion Steven', 'steven'],
+  ['Champion Wallace', 'wallace'],
+  ['Champion Alder', 'alder'],
+  ['Champion Iris', 'iris'],
+  ['Champion Diantha', 'diantha'],
+  ['Champion Leon', 'leon'],
+  ['Champion Red', 'red'],
+  ['Champion Blue', 'blue'],
+];
+
+const ELITE_CHANCE = 0.05;
+
 export function seedToTrainer(seed: string): Trainer {
-  const [name, file] = TRAINER_CLASSES[fnv1a(`trainer:${seed}`) % TRAINER_CLASSES.length];
+  const elite = mulberry32(fnv1a(`trainer-elite:${seed}`))() < ELITE_CHANCE;
+  const pool = elite ? ELITE_TRAINERS : TRAINER_CLASSES;
+  const [name, file] = pool[fnv1a(`trainer:${seed}`) % pool.length];
   return { name, spriteUrl: `${SPRITE_BASE}/${file}.png` };
 }

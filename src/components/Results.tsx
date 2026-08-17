@@ -7,7 +7,6 @@ import { TypeBadge } from './TypeBadge';
 
 export interface NewDraftOptions {
   keepNames: boolean;
-  keepSeeds: boolean;
 }
 
 interface Props {
@@ -21,7 +20,6 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
   const [copied, setCopied] = useState('');
   const [showNewDraft, setShowNewDraft] = useState(false);
   const [keepNames, setKeepNames] = useState(true);
-  const [keepSeeds, setKeepSeeds] = useState(false);
 
   const copy = async (label: string, text: string) => {
     await navigator.clipboard.writeText(text);
@@ -29,15 +27,21 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
     setTimeout(() => setCopied(''), 2000);
   };
 
-  const resultsText = [
-    'Fantasy Football Draft Order',
-    ...standings.map(
-      (s, i) =>
-        `${i + 1}. ${s.combatant.team.name} — ${s.combatant.pokemon.name} (${s.wins}W-${s.losses}L)`,
-    ),
-    '',
-    shareUrl(config),
-  ].join('\n');
+  const copyLink = async () => copy('link', await shareUrl(config));
+
+  const copyResultsText = async () =>
+    copy(
+      'text',
+      [
+        'Fantasy Football Draft Order',
+        ...standings.map(
+          (s, i) =>
+            `${i + 1}. ${s.combatant.team.name} — ${s.combatant.pokemon.name} (${s.wins}W-${s.losses}L)`,
+        ),
+        '',
+        await shareUrl(config),
+      ].join('\n'),
+    );
 
   return (
     <div className="results">
@@ -88,10 +92,10 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
       </ol>
 
       <div className="results-actions">
-        <button className="primary" onClick={() => copy('link', shareUrl(config))}>
+        <button className="primary" onClick={() => void copyLink()}>
           {copied === 'link' ? 'Link copied!' : 'Copy share link'}
         </button>
-        <button onClick={() => copy('text', resultsText)}>
+        <button onClick={() => void copyResultsText()}>
           {copied === 'text' ? 'Copied!' : 'Copy results text'}
         </button>
         <button onClick={onReplay}>Replay battles</button>
@@ -100,7 +104,6 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
 
       {showNewDraft && (
         <div className="keep-seeds-ask">
-          <span>Carry anything over?</span>
           <label>
             <input
               type="checkbox"
@@ -109,15 +112,7 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
             />
             Keep team names
           </label>
-          <label>
-            <input
-              type="checkbox"
-              checked={keepSeeds}
-              onChange={(e) => setKeepSeeds(e.target.checked)}
-            />
-            Keep seeds
-          </label>
-          <button className="primary" onClick={() => onNewDraft({ keepNames, keepSeeds })}>
+          <button className="primary" onClick={() => onNewDraft({ keepNames })}>
             Go
           </button>
           <button onClick={() => setShowNewDraft(false)}>Cancel</button>

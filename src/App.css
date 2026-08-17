@@ -1174,3 +1174,147 @@ input.dup {
   max-width: 560px;
   margin: -0.5rem auto 1rem;
 }
+
+/* v12: input clear buttons, stale link notice, mobile pass */
+.input-wrap {
+  position: relative;
+  display: flex;
+  min-width: 0;
+}
+
+.input-wrap input {
+  width: 100%;
+  padding-right: 2rem;
+}
+
+.input-clear {
+  position: absolute;
+  right: 0.3rem;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: #64748b;
+  font-size: 1.1rem;
+  line-height: 1;
+  padding: 0.2rem 0.4rem;
+  cursor: pointer;
+}
+
+.input-clear:hover {
+  color: #f87171;
+  border: none;
+}
+
+.stale-link-notice {
+  color: #f59e0b;
+  font-size: 0.85rem;
+  max-width: 640px;
+  margin: 0.5rem auto 1rem;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  border-radius: 10px;
+  padding: 0.6rem 1rem;
+}
+
+/* Mobile pass */
+@media (max-width: 720px) {
+  .app {
+    padding: 1.25rem 0.75rem 3rem;
+  }
+
+  .subtitle {
+    font-size: 0.9rem;
+  }
+
+  .config-row {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .arena {
+    grid-template-columns: 1fr;
+    gap: 1.75rem;
+    padding: 1.25rem 0.75rem;
+  }
+
+  .vs {
+    display: none;
+  }
+
+  .sprite-box > img {
+    width: 110px;
+    height: 110px;
+  }
+
+  img.trainer-sprite-big {
+    width: 32px;
+    height: 32px;
+  }
+
+  .battle-log {
+    height: 260px;
+    font-size: 0.82rem;
+  }
+
+  .battle-header {
+    justify-content: center;
+  }
+
+  .battle-header h2 {
+    font-size: 1.1rem;
+    width: 100%;
+    text-align: center;
+  }
+
+  .battle-controls {
+    justify-content: center;
+  }
+
+  .battle-controls button {
+    padding: 0.3rem 0.55rem;
+    font-size: 0.78rem;
+  }
+
+  /* Standings: stack the record under the names instead of squeezing sideways */
+  .standing {
+    flex-wrap: wrap;
+    gap: 0.5rem 0.75rem;
+    padding: 0.6rem 0.75rem;
+  }
+
+  .standing-info {
+    flex: 1 1 60%;
+  }
+
+  .record {
+    flex-direction: row;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    justify-content: flex-end;
+    white-space: nowrap;
+  }
+
+  .standing img {
+    width: 44px;
+    height: 44px;
+  }
+
+  .rank {
+    width: 2rem;
+    font-size: 1rem;
+  }
+
+  .standing-trainer-name {
+    display: none;
+  }
+
+  .results-actions button {
+    flex: 1 1 45%;
+  }
+
+  .keep-seeds-ask {
+    flex-direction: column;
+  }
+}

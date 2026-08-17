@@ -21,9 +21,10 @@ type Phase =
 
 export default function App() {
   const [phase, setPhase] = useState<Phase>({ name: 'setup' });
-  const [config, setConfig] = useState<DraftConfig | null>(() => configFromUrl());
+  const [config, setConfig] = useState<DraftConfig | null>(null);
   const [tournament, setTournament] = useState<TournamentResult | null>(null);
   const [error, setError] = useState('');
+  const [staleLink, setStaleLink] = useState(false);
 
   const start = async (draft: DraftConfig) => {
     setConfig(draft);
@@ -57,10 +58,16 @@ export default function App() {
   // A shared link carries the full config (including salt), so replay it directly.
   const autoStarted = useRef(false);
   useEffect(() => {
-    if (!autoStarted.current && config?.salt) {
-      autoStarted.current = true;
-      void start(config);
-    }
+    void (async () => {
+      const decoded = await configFromUrl();
+      if (decoded && decoded.config.salt && !autoStarted.current) {
+        autoStarted.current = true;
+        // Battle logic can change between releases, so an old link may replay differently
+        // than it did when it was created — surface that instead of pretending otherwise.
+        if (decoded.version !== APP_VERSION) setStaleLink(true);
+        await start(decoded.config);
+      }
+    })();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -74,6 +81,12 @@ export default function App() {
       </p>
 
       {error && <p className="error">{error}</p>}
+      {staleLink && (
+        <p className="stale-link-notice">
+          ⚠ This link was created with an older version of the site (now v{APP_VERSION}). The
+          battle logic may have changed since, so this replay can differ from the original result.
+        </p>
+      )}
 
       {phase.name === 'setup' && (
         <>
@@ -96,19 +109,16 @@ export default function App() {
           standings={tournament.standings}
           config={config}
           onReplay={() => setPhase({ name: 'battle' })}
-          onNewDraft={({ keepNames, keepSeeds }) => {
+          onNewDraft={({ keepNames }) => {
             window.location.hash = '';
             setTournament(null);
-            if (!keepNames && !keepSeeds) clearSetup();
+            setStaleLink(false);
+            if (!keepNames) clearSetup();
             setConfig(
-              keepNames || keepSeeds
+              keepNames
                 ? {
                     ...config,
-                    teams: config.teams.map((t) => ({
-                      name: keepNames ? t.name : '',
-                      seed: keepSeeds ? t.seed : '',
-                      manual: keepSeeds ? t.manual : undefined,
-                    })),
+                    teams: config.teams.map((t) => ({ name: t.name, seed: '' })),
                   }
                 : null,
             );
