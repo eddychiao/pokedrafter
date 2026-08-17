@@ -1,4 +1,5 @@
 import type { DraftConfig, TeamConfig } from '../types';
+import { DEFAULT_FEATURES } from '../types';
 import { ALL_GENERATIONS, GENERATIONS } from './pokeapi';
 
 export function encodeConfig(config: DraftConfig): string {
@@ -11,6 +12,7 @@ export function encodeConfig(config: DraftConfig): string {
     ]),
     g: config.generations,
     s: config.salt,
+    f: [config.features.pokerus ? 1 : 0, config.features.berries ? 1 : 0, config.features.items ? 1 : 0],
   };
   return btoa(encodeURIComponent(JSON.stringify(payload)));
 }
@@ -38,7 +40,16 @@ export function decodeConfig(encoded: string): DraftConfig | null {
     const rawGens: unknown[] = Array.isArray(payload) ? ALL_GENERATIONS : (payload.g ?? ALL_GENERATIONS);
     const generations = rawGens.map(Number).filter((g) => g in GENERATIONS);
     const salt = Array.isArray(payload) ? '' : String(payload.s ?? '');
-    return { teams, generations: generations.length > 0 ? generations : ALL_GENERATIONS, salt };
+    const rawFeatures = Array.isArray(payload) ? null : payload.f;
+    const features = Array.isArray(rawFeatures)
+      ? { pokerus: rawFeatures[0] === 1, berries: rawFeatures[1] === 1, items: rawFeatures[2] === 1 }
+      : DEFAULT_FEATURES;
+    return {
+      teams,
+      generations: generations.length > 0 ? generations : ALL_GENERATIONS,
+      salt,
+      features,
+    };
   } catch {
     return null;
   }

@@ -52,8 +52,10 @@ interface ApiPokemon {
 
 const SHINY_CHANCE = 0.1;
 
+/** Base probability shared by the rare bonus features (Pokérus, berries, items). */
+export const FEATURE_CHANCE = 0.03;
+
 /** Pokérus: rare beneficial virus granting a very slight stat boost. */
-const POKERUS_CHANCE = 0.03;
 const POKERUS_BOOST = 1.08;
 
 interface ChainLink {
@@ -156,6 +158,10 @@ export interface FetchPokemonOptions {
   shinyOverride?: boolean;
   /** Admin-mode: marks the result as manually tampered with, for UI display. */
   manual?: boolean;
+  /** Gates the 3% Pokérus roll (default on). */
+  enablePokerus?: boolean;
+  /** Gates the 3% held-berry roll (default off — toggle not yet exposed). */
+  enableBerries?: boolean;
 }
 
 export async function fetchPokemon(
@@ -173,7 +179,15 @@ export async function fetchPokemon(
     fetchSpeciesInfo(data.species.url),
   ]);
 
-  const pokerus = mulberry32(fnv1a(`pokerus:${seed}`))() < POKERUS_CHANCE;
+  const pokerus =
+    (options.enablePokerus ?? true) && mulberry32(fnv1a(`pokerus:${seed}`))() < FEATURE_CHANCE;
+  const berryRng = mulberry32(fnv1a(`berry:${seed}`));
+  const berry =
+    (options.enableBerries ?? false) && berryRng() < FEATURE_CHANCE
+      ? berryRng() < 0.5
+        ? ('oran' as const)
+        : ('sitrus' as const)
+      : undefined;
   const evolutionBoost = 1 + EVOLUTION_STAGE_BOOST * speciesInfo.stagesRemaining;
   const boostedTotal = data.stats.reduce((sum, s) => sum + s.base_stat * evolutionBoost, 0);
   const floorBoost = boostedTotal < MIN_BST ? MIN_BST / boostedTotal : 1;
@@ -206,6 +220,7 @@ export async function fetchPokemon(
     animatedSpriteUrl: data.sprites.front_default ?? '',
     shiny,
     pokerus,
+    berry,
     manual: options.manual ?? false,
   };
 }

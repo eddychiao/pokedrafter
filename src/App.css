@@ -1083,3 +1083,53 @@ input.dup {
   letter-spacing: 0.04em;
   vertical-align: middle;
 }
+
+/* v10: additional settings */
+.advanced-settings {
+  margin: 0 0 1.25rem;
+  color: #94a3b8;
+  font-size: 0.9rem;
+}
+
+.advanced-settings summary {
+  cursor: pointer;
+  font-weight: 600;
+  user-select: none;
+}
+
+.advanced-settings summary:hover {
+  color: #e2e8f0;
+}
+
+.feature-toggles {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.75rem;
+}
+
+.feature-toggle {
+  font-size: 0.85rem;
+  padding: 0.4rem 0.9rem;
+}
+
+.feature-toggle.active {
+  background: #6366f1;
+  border-color: #6366f1;
+  color: #fff;
+}
+
+.feature-toggle:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.feature-disabled-wrap {
+  display: inline-block;
+}
+
+.battle-log .log-heal .log-text {
+  color: #4ade80;
+  font-weight: 700;
+}

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
-import type { DraftConfig, TeamConfig } from '../types';
+import type { DraftConfig, FeatureOptions, TeamConfig } from '../types';
+import { DEFAULT_FEATURES } from '../types';
 import { ALL_GENERATIONS } from '../lib/pokeapi';
 import { randomSalt } from '../lib/rng';
 import { loadSpeciesList, type SpeciesOption } from '../lib/speciesList';
@@ -56,11 +57,14 @@ export function SetupForm({ initialConfig, onStart }: Props) {
   );
   const [error, setError] = useState('');
   const [adminMode, setAdminMode] = useState(saved?.adminMode ?? false);
+  const [features, setFeatures] = useState<FeatureOptions>(
+    initialConfig?.features ?? saved?.features ?? DEFAULT_FEATURES,
+  );
   const [species, setSpecies] = useState<SpeciesOption[]>([]);
 
   useEffect(() => {
-    saveSetup({ teams, generations, adminMode });
-  }, [teams, generations, adminMode]);
+    saveSetup({ teams, generations, adminMode, features });
+  }, [teams, generations, adminMode, features]);
 
   useEffect(() => {
     if (adminMode && species.length === 0) {
@@ -115,7 +119,7 @@ export function SetupForm({ initialConfig, onStart }: Props) {
     }
     setError('');
     // Fresh salt every run: nobody can predict which Pokémon a seed maps to.
-    onStart({ teams: filled, generations, salt: randomSalt() });
+    onStart({ teams: filled, generations, salt: randomSalt(), features });
   };
 
   return (
@@ -167,6 +171,28 @@ export function SetupForm({ initialConfig, onStart }: Props) {
         />
         Admin mode — manually set a team's Pokémon
       </label>
+
+      <details className="advanced-settings">
+        <summary>Additional settings</summary>
+        <div className="feature-toggles">
+          <button
+            className={`feature-toggle ${features.pokerus ? 'active' : ''}`}
+            onClick={() => setFeatures((f) => ({ ...f, pokerus: !f.pokerus }))}
+          >
+            🦠 Pokérus
+          </button>
+          <span className="feature-disabled-wrap" title="Coming soon!">
+            <button className="feature-toggle" disabled>
+              🍒 Berries
+            </button>
+          </span>
+          <span className="feature-disabled-wrap" title="Coming soon!">
+            <button className="feature-toggle" disabled>
+              🎒 Items
+            </button>
+          </span>
+        </div>
+      </details>
 
       <div className="team-grid">
         {teams.map((team, i) => (

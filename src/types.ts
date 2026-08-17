@@ -12,11 +12,22 @@ export interface TeamConfig {
   manual?: ManualOverride;
 }
 
+export interface FeatureOptions {
+  pokerus: boolean;
+  /** Not yet exposed in the UI — base logic exists but the toggle is disabled. */
+  berries: boolean;
+  /** Not yet implemented — placeholder toggle only. */
+  items: boolean;
+}
+
+export const DEFAULT_FEATURES: FeatureOptions = { pokerus: true, berries: false, items: false };
+
 export interface DraftConfig {
   teams: TeamConfig[];
   generations: number[];
   /** Random salt mixed into every hash so seeds can't be gamed; carried in share links. */
   salt: string;
+  features: FeatureOptions;
 }
 
 export interface BaseStats {
@@ -49,6 +60,8 @@ export interface Pokemon {
   shiny: boolean;
   /** Rare beneficial virus: slightly boosted stats, rolled from the seed like shininess. */
   pokerus: boolean;
+  /** Held berry: heals once per battle when HP drops below the threshold. */
+  berry?: 'oran' | 'sitrus';
   /** True if the species or shininess was hand-picked in admin mode rather than rolled from the seed. */
   manual: boolean;
 }
@@ -76,6 +89,8 @@ export interface BattleEvent {
   selfDestruct?: boolean;
   /** Marks the match intro / final result lines so the log can style them distinctly. */
   banner?: 'start' | 'end';
+  /** HP restored this event (berry activation). */
+  heal?: number;
   hpA: number;
   hpB: number;
   maxHpA: number;

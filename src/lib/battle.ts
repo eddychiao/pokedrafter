@@ -19,7 +19,15 @@ interface Fighter {
   hp: number;
   maxHp: number;
   damageDealt: number;
+  berryUsed: boolean;
 }
+
+/** Berries trigger once per battle when HP first drops below this fraction of max. */
+const BERRY_THRESHOLD = 0.5;
+const BERRY_HEAL_FRACTION: Record<'oran' | 'sitrus', number> = {
+  oran: 0.1,
+  sitrus: 0.25,
+};
 
 function computeDamage(attacker: Pokemon, defender: Pokemon, move: Move, rng: Rng) {
   const attackStat = effectiveStat(
@@ -51,8 +59,8 @@ function describeEffectiveness(multiplier: number): string {
 
 export function simulateBattle(a: Combatant, b: Combatant, rng: Rng): MatchResult {
   const fighters: [Fighter, Fighter] = [
-    { combatant: a, hp: maxHp(a.pokemon), maxHp: maxHp(a.pokemon), damageDealt: 0 },
-    { combatant: b, hp: maxHp(b.pokemon), maxHp: maxHp(b.pokemon), damageDealt: 0 },
+    { combatant: a, hp: maxHp(a.pokemon), maxHp: maxHp(a.pokemon), damageDealt: 0, berryUsed: false },
+    { combatant: b, hp: maxHp(b.pokemon), maxHp: maxHp(b.pokemon), damageDealt: 0, berryUsed: false },
   ];
 
   const events: BattleEvent[] = [];
@@ -131,6 +139,25 @@ export function simulateBattle(a: Combatant, b: Combatant, rng: Rng): MatchResul
       }
       if (defender.hp <= 0) {
         events.push(snapshot(`${defender.combatant.pokemon.name} fainted!`, { faint: true }));
+      }
+
+      // Held berry: heals once per battle the first time HP drops below the threshold.
+      const berry = defender.combatant.pokemon.berry;
+      if (
+        berry &&
+        !defender.berryUsed &&
+        defender.hp > 0 &&
+        defender.hp / defender.maxHp < BERRY_THRESHOLD
+      ) {
+        defender.berryUsed = true;
+        const healed = Math.max(1, Math.floor(defender.maxHp * BERRY_HEAL_FRACTION[berry]));
+        defender.hp = Math.min(defender.maxHp, defender.hp + healed);
+        events.push(
+          snapshot(
+            `${defender.combatant.pokemon.name} ate its ${berry === 'oran' ? 'Oran' : 'Sitrus'} Berry and restored ${healed} HP!`,
+            { heal: healed },
+          ),
+        );
       }
     }
   }

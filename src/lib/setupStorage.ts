@@ -1,4 +1,5 @@
-import type { TeamConfig } from '../types';
+import type { FeatureOptions, TeamConfig } from '../types';
+import { DEFAULT_FEATURES } from '../types';
 
 const STORAGE_KEY = 'pokedraft:setup';
 
@@ -6,6 +7,7 @@ export interface SavedSetup {
   teams: TeamConfig[];
   generations: number[];
   adminMode: boolean;
+  features: FeatureOptions;
 }
 
 export function saveSetup(setup: SavedSetup): void {
@@ -26,6 +28,10 @@ export function loadSetup(): SavedSetup | null {
       teams: parsed.teams,
       generations: parsed.generations,
       adminMode: parsed.adminMode === true,
+      features:
+        parsed.features && typeof parsed.features === 'object'
+          ? { ...DEFAULT_FEATURES, ...parsed.features }
+          : DEFAULT_FEATURES,
     };
   } catch {
     return null;

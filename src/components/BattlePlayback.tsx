@@ -204,6 +204,7 @@ export function BattlePlayback({ matches, onDone }: Props) {
               const tone =
                 e.banner === 'start' ? 'log-start'
                 : e.banner === 'end' ? 'log-end'
+                : e.heal !== undefined ? 'log-heal'
                 : e.faint ? 'log-faint'
                 : e.crit || (e.effectiveness ?? 1) >= 2 ? 'log-super'
                 : (e.effectiveness ?? 1) < 1 ? 'log-weak'

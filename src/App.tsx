@@ -38,6 +38,8 @@ export default function App() {
           const pokemon = await fetchPokemon(pokemonId, saltedSeed, {
             shinyOverride: team.manual?.shiny,
             manual: team.manual !== undefined,
+            enablePokerus: draft.features.pokerus,
+            enableBerries: draft.features.berries,
           });
           done++;
           setPhase({ name: 'loading', done, total: draft.teams.length });
