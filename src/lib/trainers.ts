@@ -75,5 +75,5 @@ export function seedToTrainer(seed: string): Trainer {
   const elite = mulberry32(fnv1a(`trainer-elite:${seed}`))() < ELITE_CHANCE;
   const pool = elite ? ELITE_TRAINERS : TRAINER_CLASSES;
   const [name, file] = pool[fnv1a(`trainer:${seed}`) % pool.length];
-  return { name, spriteUrl: `${SPRITE_BASE}/${file}.png` };
+  return { name, spriteUrl: `${SPRITE_BASE}/${file}.png`, elite };
 }

@@ -156,7 +156,13 @@ export function BattlePlayback({ matches, onDone }: Props) {
                   key={side}
                 >
                   <span className="fighter-team">
-                    <HoverTarget content={<span className="hover-pop trainer-pop">{c.trainer.name}</span>}>
+                    <HoverTarget
+                      content={
+                        <span className={`hover-pop trainer-pop ${c.trainer.elite ? 'elite-trainer' : ''}`}>
+                          {c.trainer.name}
+                        </span>
+                      }
+                    >
                       <img
                         className="trainer-sprite-big"
                         src={c.trainer.spriteUrl}

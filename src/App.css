@@ -1352,3 +1352,16 @@ input.dup {
 .results .record {
   gap: 0;
 }
+
+.elite-trainer {
+  color: #fbbf24 !important;
+  font-weight: 700;
+  text-shadow: 0 0 6px rgba(251, 191, 36, 0.35);
+}
+
+/* Elite titles are special enough to keep visible on mobile too */
+@media (max-width: 720px) {
+  .standing-trainer-name.elite-trainer {
+    display: inline;
+  }
+}

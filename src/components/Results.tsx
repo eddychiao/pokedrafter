@@ -62,7 +62,11 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
                   title={s.combatant.trainer.name}
                 />
                 {s.combatant.team.name}
-                <span className="standing-trainer-name">({s.combatant.trainer.name})</span>
+                <span
+                  className={`standing-trainer-name ${s.combatant.trainer.elite ? 'elite-trainer' : ''}`}
+                >
+                  ({s.combatant.trainer.name})
+                </span>
               </span>
               <div className="standing-detail">
                 <span className="standing-pokemon">{s.combatant.pokemon.name}</span>

@@ -69,6 +69,8 @@ export interface Pokemon {
 export interface Trainer {
   name: string;
   spriteUrl: string;
+  /** Gym leader / Elite Four / champion — rendered in gold. */
+  elite: boolean;
 }
 
 export interface Combatant {
