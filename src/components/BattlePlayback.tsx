@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Combatant, MatchResult } from '../types';
 import { damageDealtBy, damageTakenBy } from '../lib/battle';
 import { TypeBadge } from './TypeBadge';
-import { PokemonStatCard, PokerusChip, ShinyChip, TamperBadge } from './PokemonHoverCard';
+import { PokemonStatCard, PokerusChip, PokerusIcon, ShinyChip, TamperBadge } from './PokemonHoverCard';
 import { HoverTarget } from './HoverTarget';
 
 interface Props {
@@ -242,7 +242,7 @@ export function BattlePlayback({ matches, onDone }: Props) {
                         {team.name}
                       </span>
                       <span className="record-poke-name">
-                        {pokemon.name} {pokemon.shiny && '✨'} {pokemon.pokerus && '🦠'}{' '}
+                        {pokemon.name} {pokemon.shiny && '✨'} {pokemon.pokerus && <PokerusIcon size={11} />}{' '}
                         {pokemon.manual && '⚙'}
                       </span>
                       <div className="record-poke-types">

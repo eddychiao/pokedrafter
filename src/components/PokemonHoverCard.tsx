@@ -6,10 +6,22 @@ export function ShinyChip() {
   return <span className="shiny-chip">✨ shiny</span>;
 }
 
+/** Pixel-art rendition of the games' status-screen Pokérus icon (pink smiley face). */
+export function PokerusIcon({ size = 12 }: { size?: number }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 8 8" aria-hidden="true" style={{ imageRendering: 'pixelated' }}>
+      <rect x="0" y="0" width="8" height="8" rx="1.5" fill="#e864b8" />
+      <rect x="1.5" y="2" width="1.5" height="2" fill="#5c1141" />
+      <rect x="5" y="2" width="1.5" height="2" fill="#5c1141" />
+      <path d="M1.5 5.5 L2.5 6.5 L3.25 5.75 L4 6.5 L4.75 5.75 L5.5 6.5 L6.5 5.5" stroke="#5c1141" strokeWidth="0.8" fill="none" />
+    </svg>
+  );
+}
+
 export function PokerusChip() {
   return (
     <span className="pokerus-chip" title="Pokérus — slightly boosted stats">
-      🦠 pkrs
+      <PokerusIcon /> pkrs
     </span>
   );
 }

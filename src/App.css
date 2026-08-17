@@ -660,7 +660,7 @@ img.trainer-sprite-big {
 }
 
 .battle-log {
-  height: 400px;
+  height: 500px;
 }
 
 /* hover cards */
@@ -1070,7 +1070,9 @@ input.dup {
 }
 
 .pokerus-chip {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
   margin-left: 0.4rem;
   padding: 0.05rem 0.45rem;
   border-radius: 999px;

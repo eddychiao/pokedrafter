@@ -64,7 +64,7 @@ interface ChainLink {
 }
 
 /** Boost per unrealized evolution stage, so a Charmander isn't hopeless against a Charizard. */
-const EVOLUTION_STAGE_BOOST = 0.25;
+const EVOLUTION_STAGE_BOOST = 0.15;
 
 /**
  * Gentle floor on post-boost base stat total: anything still below this (Caterpie, Magikarp...)
