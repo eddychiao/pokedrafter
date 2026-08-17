@@ -114,7 +114,7 @@ function computeRecords(matches: MatchResult[], completedCount: number): RecordR
   );
 }
 
-const RECORD_ROW_HEIGHT = 56;
+const RECORD_ROW_HEIGHT = 70;
 
 export function BattlePlayback({ matches, onDone }: Props) {
   const [matchIndex, setMatchIndex] = useState(0);
@@ -223,7 +223,6 @@ export function BattlePlayback({ matches, onDone }: Props) {
                   </div>
                   <span className="fighter-name">
                     {c.pokemon.name}
-                    <span className="level-tag">Lv.{LEVEL}</span>
                     {c.pokemon.shiny && <ShinyChip />}
                     {c.pokemon.manual && <TamperBadge />}
                   </span>
@@ -282,6 +281,11 @@ export function BattlePlayback({ matches, onDone }: Props) {
                       <span className="record-poke-name">
                         {pokemon.name} {pokemon.shiny && '✨'} {pokemon.manual && '⚙'}
                       </span>
+                      <div className="record-poke-types">
+                        {pokemon.types.map((t) => (
+                          <TypeBadge key={t} type={t} />
+                        ))}
+                      </div>
                     </div>
                     <div className="record-stats">
                       <span className="record-wl">

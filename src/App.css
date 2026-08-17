@@ -734,7 +734,7 @@ img.trainer-sprite-big {
 
 /* leaderboard */
 .record-row {
-  height: 56px;
+  height: 70px;
   gap: 0.55rem;
 }
 
@@ -784,6 +784,17 @@ img.record-poke {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.record-poke-types {
+  display: flex;
+  gap: 0.25rem;
+  margin-top: 0.2rem;
+}
+
+.record-poke-types .type-badge {
+  padding: 0.02rem 0.35rem;
+  font-size: 0.6rem;
 }
 
 .record-stats {
@@ -870,12 +881,38 @@ input.dup {
   height: 1rem;
 }
 
-.team-row.with-admin {
-  grid-template-columns: 2rem 1fr 1fr 1fr auto auto;
+.team-row-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
 }
 
-.admin-species-input {
+.admin-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: 0.5rem 0.6rem;
+  margin-left: 2rem;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 8px;
+}
+
+.admin-field {
+  flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.admin-field-label {
+  font-size: 0.75rem;
+  color: #94a3b8;
+}
+
+.admin-field input {
+  width: 100%;
 }
 
 .admin-shiny {
@@ -885,6 +922,7 @@ input.dup {
   font-size: 0.8rem;
   white-space: nowrap;
   cursor: pointer;
+  flex-shrink: 0;
 }
 
 .admin-shiny input {
@@ -917,11 +955,8 @@ input.dup {
 }
 
 @media (max-width: 720px) {
-  .team-row.with-admin {
-    grid-template-columns: 1fr;
-    gap: 0.35rem;
-    padding: 0.5rem;
-    border: 1px solid #334155;
-    border-radius: 8px;
+  .admin-row {
+    flex-wrap: wrap;
+    margin-left: 0;
   }
 }

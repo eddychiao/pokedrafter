@@ -155,31 +155,35 @@ export function SetupForm({ initialConfig, onStart }: Props) {
 
       <div className="team-grid">
         {teams.map((team, i) => (
-          <div className={`team-row ${adminMode ? 'with-admin' : ''}`} key={i}>
-            <span className="team-index">{i + 1}</span>
-            <input
-              placeholder={`Team ${i + 1} name`}
-              className={duplicated.has(effectiveNames[i]) ? 'dup' : ''}
-              value={team.name}
-              onChange={(e) => updateTeam(i, { name: e.target.value })}
-            />
-            <input
-              placeholder="Seed (any text or number)"
-              maxLength={100}
-              value={team.seed}
-              onChange={(e) => updateTeam(i, { seed: e.target.value })}
-            />
+          <div className="team-row-group" key={i}>
+            <div className="team-row">
+              <span className="team-index">{i + 1}</span>
+              <input
+                placeholder={`Team ${i + 1} name`}
+                className={duplicated.has(effectiveNames[i]) ? 'dup' : ''}
+                value={team.name}
+                onChange={(e) => updateTeam(i, { name: e.target.value })}
+              />
+              <input
+                placeholder="Seed (any text or number)"
+                maxLength={100}
+                value={team.seed}
+                onChange={(e) => updateTeam(i, { seed: e.target.value })}
+              />
+            </div>
             {adminMode && (
-              <>
-                <input
-                  key={String(species.length > 0)}
-                  className="admin-species-input"
-                  list="species-datalist"
-                  placeholder={species.length ? 'Pick Pokémon (optional)' : 'Loading dex...'}
-                  disabled={species.length === 0}
-                  defaultValue={team.manual?.pokemonId ? speciesById.get(team.manual.pokemonId) : ''}
-                  onChange={(e) => setManualSpecies(i, e.target.value)}
-                />
+              <div className="admin-row">
+                <label className="admin-field">
+                  <span className="admin-field-label">Pokémon override (optional)</span>
+                  <input
+                    key={String(species.length > 0)}
+                    list="species-datalist"
+                    placeholder={species.length ? 'e.g. Charizard' : 'Loading dex...'}
+                    disabled={species.length === 0}
+                    defaultValue={team.manual?.pokemonId ? speciesById.get(team.manual.pokemonId) : ''}
+                    onChange={(e) => setManualSpecies(i, e.target.value)}
+                  />
+                </label>
                 <label className="admin-shiny">
                   <input
                     type="checkbox"
@@ -189,7 +193,7 @@ export function SetupForm({ initialConfig, onStart }: Props) {
                   Shiny
                 </label>
                 {team.manual && <span className="tamper-badge" title="Manually overridden">⚙ set</span>}
-              </>
+              </div>
             )}
           </div>
         ))}

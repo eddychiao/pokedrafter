@@ -3,7 +3,8 @@ import type { Rng } from './rng';
 import { typeEffectiveness } from './typeChart';
 
 export const LEVEL = 100;
-const MAX_TURNS = 60;
+/** Failsafe: if neither side has fainted by this turn, the fight is decided on remaining HP%. */
+const MAX_TURNS = 100;
 
 function maxHp(pokemon: Pokemon): number {
   return Math.floor(0.02 * pokemon.stats.hp * LEVEL) + LEVEL + 10;
