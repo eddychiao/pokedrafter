@@ -120,23 +120,24 @@ export function SetupForm({ initialConfig, onStart }: Props) {
 
   return (
     <div className="setup">
-      <label className="count-row">
-        Number of teams
-        <select
-          value={teams.length}
-          onChange={(e) => setTeams((prev) => blankTeams(Number(e.target.value), prev))}
-        >
-          {TEAM_COUNTS.map((count) => (
-            <option key={count} value={count}>
-              {count}
-            </option>
-          ))}
-        </select>
-      </label>
+      <div className="config-row">
+        <label className="count-row">
+          Teams
+          <select
+            value={teams.length}
+            onChange={(e) => setTeams((prev) => blankTeams(Number(e.target.value), prev))}
+          >
+            {TEAM_COUNTS.map((count) => (
+              <option key={count} value={count}>
+                {count}
+              </option>
+            ))}
+          </select>
+        </label>
 
-      <div className="gen-row">
-        <span className="gen-label">Generations</span>
-        <div className="gen-toggles">
+        <div className="gen-row">
+          <span className="gen-label">Generations</span>
+          <div className="gen-toggles">
           {ALL_GENERATIONS.map((gen) => {
             const active = generations.includes(gen);
             return (
@@ -154,6 +155,7 @@ export function SetupForm({ initialConfig, onStart }: Props) {
               </button>
             );
           })}
+          </div>
         </div>
       </div>
 

@@ -52,6 +52,10 @@ interface ApiPokemon {
 
 const SHINY_CHANCE = 0.1;
 
+/** Pokérus: rare beneficial virus granting a very slight stat boost. */
+const POKERUS_CHANCE = 0.03;
+const POKERUS_BOOST = 1.08;
+
 interface ChainLink {
   species: { name: string };
   evolves_to: ChainLink[];
@@ -60,10 +64,23 @@ interface ChainLink {
 /** Boost per unrealized evolution stage, so a Charmander isn't hopeless against a Charizard. */
 const EVOLUTION_STAGE_BOOST = 0.25;
 
-async function evolutionStagesRemaining(speciesUrl: string): Promise<number> {
+/**
+ * Gentle floor on post-boost base stat total: anything still below this (Caterpie, Magikarp...)
+ * is scaled up to it, so the weakest mons are underdogs rather than free wins. Mid-tier and
+ * above are untouched.
+ */
+const MIN_BST = 370;
+
+interface SpeciesInfo {
+  /** Species (base form) name, e.g. "giratina" rather than "giratina-altered". */
+  name: string;
+  stagesRemaining: number;
+}
+
+async function fetchSpeciesInfo(speciesUrl: string): Promise<SpeciesInfo> {
   try {
     const species = await fetchJson<{ name: string; evolution_chain: { url: string } | null }>(speciesUrl);
-    if (!species.evolution_chain) return 0;
+    if (!species.evolution_chain) return { name: species.name, stagesRemaining: 0 };
     const chain = await fetchJson<{ chain: ChainLink }>(species.evolution_chain.url);
 
     const find = (node: ChainLink): ChainLink | null => {
@@ -78,9 +95,9 @@ async function evolutionStagesRemaining(speciesUrl: string): Promise<number> {
       node.evolves_to.length === 0 ? 0 : 1 + Math.max(...node.evolves_to.map(depthBelow));
 
     const node = find(chain.chain);
-    return node ? depthBelow(node) : 0;
+    return { name: species.name, stagesRemaining: node ? depthBelow(node) : 0 };
   } catch {
-    return 0;
+    return { name: '', stagesRemaining: 0 };
   }
 }
 
@@ -148,15 +165,19 @@ export async function fetchPokemon(
 ): Promise<Pokemon> {
   const data = await fetchJson<ApiPokemon>(`${API_BASE}/pokemon/${id}`);
 
-  const [moves, stagesRemaining] = await Promise.all([
+  const [moves, speciesInfo] = await Promise.all([
     pickMoves(
       data.moves.map((m) => m.move.url),
       seed,
     ),
-    evolutionStagesRemaining(data.species.url),
+    fetchSpeciesInfo(data.species.url),
   ]);
 
-  const boost = 1 + EVOLUTION_STAGE_BOOST * stagesRemaining;
+  const pokerus = mulberry32(fnv1a(`pokerus:${seed}`))() < POKERUS_CHANCE;
+  const evolutionBoost = 1 + EVOLUTION_STAGE_BOOST * speciesInfo.stagesRemaining;
+  const boostedTotal = data.stats.reduce((sum, s) => sum + s.base_stat * evolutionBoost, 0);
+  const floorBoost = boostedTotal < MIN_BST ? MIN_BST / boostedTotal : 1;
+  const boost = evolutionBoost * floorBoost * (pokerus ? POKERUS_BOOST : 1);
   const statOf = (name: string) =>
     Math.round((data.stats.find((s) => s.stat.name === name)?.base_stat ?? 50) * boost);
 
@@ -170,7 +191,7 @@ export async function fetchPokemon(
 
   return {
     id: data.id,
-    name: data.name.replace(/-/g, ' '),
+    name: (speciesInfo.name || data.name).replace(/-/g, ' '),
     types: data.types.map((t) => t.type.name),
     stats: {
       hp: statOf('hp'),
@@ -184,6 +205,7 @@ export async function fetchPokemon(
     spriteUrl,
     animatedSpriteUrl: data.sprites.front_default ?? '',
     shiny,
+    pokerus,
     manual: options.manual ?? false,
   };
 }

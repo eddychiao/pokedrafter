@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import type { DraftConfig, Standing } from '../types';
 import { shareUrl } from '../lib/share';
-import { PokemonStatCard } from './PokemonHoverCard';
+import { PokemonStatCard, PokerusChip } from './PokemonHoverCard';
 import { HoverTarget } from './HoverTarget';
 import { TypeBadge } from './TypeBadge';
 
@@ -63,6 +63,7 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
               <span className="standing-pokemon">
                 {s.combatant.pokemon.name}
                 {s.combatant.pokemon.shiny && <span className="shiny-chip">✨ shiny</span>}
+                {s.combatant.pokemon.pokerus && <PokerusChip />}
                 {s.combatant.pokemon.manual && (
                   <span className="tamper-badge" title="Manually set in admin mode">
                     ⚙ set

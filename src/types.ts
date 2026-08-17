@@ -47,6 +47,8 @@ export interface Pokemon {
   spriteUrl: string;
   animatedSpriteUrl: string;
   shiny: boolean;
+  /** Rare beneficial virus: slightly boosted stats, rolled from the seed like shininess. */
+  pokerus: boolean;
   /** True if the species or shininess was hand-picked in admin mode rather than rolled from the seed. */
   manual: boolean;
 }
@@ -72,6 +74,8 @@ export interface BattleEvent {
   effectiveness?: number;
   faint?: boolean;
   selfDestruct?: boolean;
+  /** Marks the match intro / final result lines so the log can style them distinctly. */
+  banner?: 'start' | 'end';
   hpA: number;
   hpB: number;
   maxHpA: number;

@@ -68,7 +68,7 @@ export default function App() {
         <Masterball size={44} /> Draft Order, I Choose You!
       </h1>
       <p className="subtitle">
-        Your league's draft order, decided in glorious Pokémon combat — may the best trainer pick first
+        Draft order, decided in glorious Pokémon combat — may the best trainer pick first
       </p>
 
       {error && <p className="error">{error}</p>}

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Combatant, MatchResult } from '../types';
 import { damageDealtBy, damageTakenBy } from '../lib/battle';
 import { TypeBadge } from './TypeBadge';
-import { PokemonStatCard, ShinyChip, TamperBadge } from './PokemonHoverCard';
+import { PokemonStatCard, PokerusChip, ShinyChip, TamperBadge } from './PokemonHoverCard';
 import { HoverTarget } from './HoverTarget';
 
 interface Props {
@@ -130,7 +130,7 @@ export function BattlePlayback({ matches, onDone }: Props) {
               {s.label}
             </button>
           ))}
-          <button onClick={skipMatch}>Skip match</button>
+          <button onClick={skipMatch}>Next match</button>
           <button onClick={onDone}>Skip to results</button>
         </div>
       </header>
@@ -184,6 +184,7 @@ export function BattlePlayback({ matches, onDone }: Props) {
                   <span className="fighter-name">
                     {c.pokemon.name}
                     {c.pokemon.shiny && <ShinyChip />}
+                    {c.pokemon.pokerus && <PokerusChip />}
                     {c.pokemon.manual && <TamperBadge />}
                   </span>
                   <div className="fighter-types">
@@ -201,14 +202,16 @@ export function BattlePlayback({ matches, onDone }: Props) {
           <div className="battle-log" ref={logRef}>
             {match.events.slice(0, eventIndex + 1).map((e, i) => {
               const tone =
-                e.faint ? 'log-faint'
+                e.banner === 'start' ? 'log-start'
+                : e.banner === 'end' ? 'log-end'
+                : e.faint ? 'log-faint'
                 : e.crit || (e.effectiveness ?? 1) >= 2 ? 'log-super'
                 : (e.effectiveness ?? 1) < 1 ? 'log-weak'
                 : '';
               return (
                 <p key={i} className={`${tone} ${i === eventIndex ? 'log-latest' : ''}`}>
                   {e.moveType && <TypeBadge type={e.moveType} />}
-                  <span>{e.text}</span>
+                  <span className="log-text">{e.text}</span>
                   {e.damage !== undefined && <span className="log-damage">−{e.damage}</span>}
                 </p>
               );
@@ -234,13 +237,12 @@ export function BattlePlayback({ matches, onDone }: Props) {
                     <img className="record-poke" src={pokemon.spriteUrl} alt={pokemon.name} />
                     <div className="record-names">
                       <span className="record-team">
-                        <HoverTarget content={<span className="hover-pop trainer-pop">{trainer.name}</span>}>
-                          <img className="trainer-sprite" src={trainer.spriteUrl} alt={trainer.name} />
-                        </HoverTarget>
+                        <img className="trainer-sprite" src={trainer.spriteUrl} alt={trainer.name} />
                         {team.name}
                       </span>
                       <span className="record-poke-name">
-                        {pokemon.name} {pokemon.shiny && '✨'} {pokemon.manual && '⚙'}
+                        {pokemon.name} {pokemon.shiny && '✨'} {pokemon.pokerus && '🦠'}{' '}
+                        {pokemon.manual && '⚙'}
                       </span>
                       <div className="record-poke-types">
                         {pokemon.types.map((t) => (

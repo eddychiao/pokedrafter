@@ -69,9 +69,9 @@ export function simulateBattle(a: Combatant, b: Combatant, rng: Rng): MatchResul
   });
 
   events.push(
-    snapshot(
-      `${a.pokemon.name} (${a.team.name}) vs ${b.pokemon.name} (${b.team.name})!`,
-    ),
+    snapshot(`${a.pokemon.name} (${a.team.name}) vs ${b.pokemon.name} (${b.team.name})!`, {
+      banner: 'start',
+    }),
   );
 
   let turns = 0;
@@ -143,9 +143,9 @@ export function simulateBattle(a: Combatant, b: Combatant, rng: Rng): MatchResul
     : b;
 
   if (fa.hp > 0 && fb.hp > 0) {
-    events.push(snapshot(`Time's up! ${winner.pokemon.name} wins on remaining HP!`));
+    events.push(snapshot(`Time's up! ${winner.pokemon.name} wins on remaining HP!`, { banner: 'end' }));
   } else {
-    events.push(snapshot(`${winner.pokemon.name} (${winner.team.name}) wins!`));
+    events.push(snapshot(`${winner.pokemon.name} (${winner.team.name}) wins!`, { banner: 'end' }));
   }
 
   return { a, b, winner, turns, events };

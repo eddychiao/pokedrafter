@@ -6,6 +6,14 @@ export function ShinyChip() {
   return <span className="shiny-chip">✨ shiny</span>;
 }
 
+export function PokerusChip() {
+  return (
+    <span className="pokerus-chip" title="Pokérus — slightly boosted stats">
+      🦠 pkrs
+    </span>
+  );
+}
+
 export function TamperBadge() {
   return (
     <span className="tamper-badge" title="Manually set in admin mode">
@@ -33,6 +41,7 @@ export function PokemonStatCard({ pokemon }: { pokemon: Pokemon }) {
           <span className="level-tag">Lv.{LEVEL}</span>
         </span>
         {pokemon.shiny && <ShinyChip />}
+        {pokemon.pokerus && <PokerusChip />}
         {pokemon.manual && <TamperBadge />}
       </div>
       <div className="poke-pop-types">
