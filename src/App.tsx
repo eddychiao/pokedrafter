@@ -9,6 +9,7 @@ import { BattlePlayback } from './components/BattlePlayback';
 import { Results } from './components/Results';
 import { Masterball } from './components/Masterball';
 import { LoadingScreen } from './components/LoadingScreen';
+import { APP_VERSION } from './version';
 import './App.css';
 
 type Phase =
@@ -71,7 +72,12 @@ export default function App() {
 
       {error && <p className="error">{error}</p>}
 
-      {phase.name === 'setup' && <SetupForm initialConfig={config} onStart={start} />}
+      {phase.name === 'setup' && (
+        <>
+          <SetupForm initialConfig={config} onStart={start} />
+          <footer className="app-version">v{APP_VERSION}</footer>
+        </>
+      )}
 
       {phase.name === 'loading' && <LoadingScreen done={phase.done} total={phase.total} />}
 

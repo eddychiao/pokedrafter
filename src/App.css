@@ -970,3 +970,10 @@ input.dup {
     margin-left: 0;
   }
 }
+
+.app-version {
+  margin-top: 2.5rem;
+  text-align: center;
+  color: #475569;
+  font-size: 0.75rem;
+}
