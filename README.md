@@ -23,26 +23,15 @@ npm run dev
 
 Pushes to `main` build and deploy to GitHub Pages via `.github/workflows/deploy.yml`. In the repo settings, set **Pages → Source → GitHub Actions** once.
 
-## Logging & analytics (Vercel)
+## Logging
 
-The frontend also (optionally) posts a row per Pokémon to a small logging API once each
-draft's battles finish, and mounts Vercel Web Analytics for pageviews. Both live in a
-**separate Vercel deployment** of this same repo — GitHub Pages stays the static frontend
-host; Vercel only needs to run `/api/*`. One-time setup (can't be done from this session,
-needs your Vercel account):
+The frontend posts a row per Pokémon to a small logging API (`/api`) once each draft's
+battles finish — species, shiny/Pokérus/berry/manual-override flags, final wins/losses,
+damage dealt/taken, rank, and league metadata (team count, generations, app version).
+`/api/export.csv` returns the whole table as a downloadable CSV.
 
-1. On [vercel.com](https://vercel.com), **Add New → Project**, import this GitHub repo.
-   Vercel auto-detects Vite; accept the defaults and deploy.
-2. In the new project, go to **Storage → Create Database → Postgres (Neon)** and attach it.
-   This sets `DATABASE_URL` automatically and redeploys — no manual SQL needed, the API
-   creates its table on first write.
-3. Go to the project's **Analytics** tab and enable Web Analytics (free on the Hobby plan).
-4. Confirm the assigned domain is `pokedrafter.vercel.app`. If Vercel gives you a different
-   one, update `API_BASE` in `src/lib/logging.ts` to match and redeploy.
-5. To pull the data: visit `https://pokedrafter.vercel.app/api/export.csv` in a browser —
-   it downloads the full log as CSV (one row per Pokémon per draft: species, shiny/Pokérus/
-   berry/manual-override flags, final wins/losses, damage dealt/taken, rank, and league
-   metadata like team count and generations).
-
-Logging is fire-and-forget from the client — if the API is unreachable or not yet set up,
-the app behaves exactly as before, it just doesn't log that run.
+The API needs a Postgres database attached (`DATABASE_URL` env var — the table auto-creates
+on first write, no manual SQL needed) and a host that can run serverless functions, since
+GitHub Pages only serves static files. Logging is fire-and-forget from the client: if the
+API isn't deployed or is unreachable, the app behaves exactly as before and just skips
+logging that run.

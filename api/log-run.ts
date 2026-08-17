@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { ensureSchema, setCors, sql } from './_db';
+import { ensureSchema, isKnownOrigin, setCors, sql } from './_db';
 
 /** Same shape the frontend sends — see src/lib/logging.ts. */
 interface RunRow {
@@ -40,6 +40,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   setCors(res);
   if (req.method === 'OPTIONS') return res.status(204).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'POST only' });
+  if (!isKnownOrigin(req.headers.origin)) return res.status(403).json({ error: 'forbidden' });
 
   const body = req.body as {
     runId?: unknown;

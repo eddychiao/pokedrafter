@@ -52,3 +52,17 @@ export function setCors(res: { setHeader: (name: string, value: string) => void 
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 }
+
+const ALLOWED_ORIGINS = ['https://eddychiao.github.io', 'https://pokedrafter.vercel.app'];
+
+/**
+ * Best-effort check that a write came from the real frontend, not a scripted drive-by.
+ * NOT a real auth boundary — a non-browser client can omit or fake the Origin header
+ * entirely, so this only filters casual browser-based abuse (e.g. another site's script
+ * hitting this endpoint), not a determined attacker. Requests with no Origin (curl,
+ * server-to-server) are allowed through since browsers always send it cross-origin but
+ * plenty of legitimate non-browser tools don't.
+ */
+export function isKnownOrigin(origin: string | undefined): boolean {
+  return !origin || ALLOWED_ORIGINS.includes(origin);
+}

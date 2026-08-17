@@ -9,8 +9,13 @@ const COLUMNS = [
   'wins', 'losses', 'damage_dealt', 'damage_taken', 'final_rank',
 ] as const;
 
+const EXPORT_LIMIT = 50_000;
+
 function csvField(value: unknown): string {
-  const text = value === null || value === undefined ? '' : String(value);
+  let text = value === null || value === undefined ? '' : String(value);
+  // Neutralize formula injection (=, +, -, @ and tab/CR are all formula triggers in
+  // Excel/Sheets) — user-typed team/trainer/Pokémon names are attacker-controlled.
+  if (/^[=+\-@\t\r]/.test(text)) text = `'${text}`;
   return /[",\n]/.test(text) ? `"${text.replace(/"/g, '""')}"` : text;
 }
 
@@ -21,7 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   try {
     await ensureSchema();
-    const rows = await sql`SELECT * FROM pokemon_events ORDER BY created_at ASC`;
+    const rows = await sql`SELECT * FROM pokemon_events ORDER BY created_at ASC LIMIT ${EXPORT_LIMIT}`;
 
     const lines = [COLUMNS.join(',')];
     for (const row of rows as Record<string, unknown>[]) {
