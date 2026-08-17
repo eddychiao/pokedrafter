@@ -307,11 +307,25 @@ button.primary:hover {
 }
 
 .record {
-  color: #94a3b8;
-  font-size: 0.8rem;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.15rem;
   white-space: nowrap;
-  text-align: right;
-  line-height: 1.5;
+}
+
+.record-wl-badge {
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  background: #1e293b;
+  border: 1px solid #334155;
+  font-weight: 700;
+  font-size: 0.85rem;
+  margin-bottom: 0.1rem;
+}
+
+.record-dmg-line {
+  font-size: 0.75rem;
 }
 
 .dmg-dealt {
@@ -320,6 +334,13 @@ button.primary:hover {
 
 .dmg-taken {
   color: #f87171;
+}
+
+.standing-trainer-name {
+  color: #64748b;
+  font-weight: 400;
+  font-size: 0.85em;
+  margin-left: 0.3rem;
 }
 
 .results-actions {
@@ -650,13 +671,13 @@ img.trainer-sprite-big {
   bottom: calc(100% + 8px);
   left: 50%;
   transform: translateX(-50%);
-  background: #1e293b;
+  background: #182234;
   border: 1px solid #475569;
-  border-radius: 10px;
-  padding: 0.5rem 0.75rem;
+  border-radius: 12px;
+  padding: 0.7rem 0.9rem;
   z-index: 20;
-  white-space: nowrap;
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  width: max-content;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
   text-align: left;
   font-size: 0.8rem;
   pointer-events: none;
@@ -668,52 +689,104 @@ img.trainer-sprite-big {
 
 .trainer-pop {
   font-weight: 700;
+  white-space: nowrap;
+}
+
+.poke-pop {
+  min-width: 220px;
+}
+
+.poke-pop-header {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.4rem;
 }
 
 .poke-pop-name {
   font-weight: 700;
+  font-size: 0.95rem;
   text-transform: capitalize;
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  margin-bottom: 0.3rem;
+  white-space: nowrap;
 }
 
 .poke-pop-types {
   display: flex;
   gap: 0.3rem;
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.poke-pop-section-label {
+  font-size: 0.65rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #64748b;
+  border-top: 1px solid #334155;
+  padding-top: 0.45rem;
+  margin-top: 0.45rem;
+  margin-bottom: 0.35rem;
 }
 
 .poke-pop-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.15rem 0.9rem;
-  margin-bottom: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
 }
 
-.poke-pop-stats div {
-  display: flex;
-  justify-content: space-between;
+.poke-pop-stat-row {
+  display: grid;
+  grid-template-columns: 2rem 1fr 2rem;
+  align-items: center;
   gap: 0.5rem;
+  white-space: nowrap;
 }
 
 .stat-label {
   color: #94a3b8;
+  font-size: 0.72rem;
+}
+
+.stat-bar-track {
+  height: 6px;
+  background: #0f172a;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.stat-bar-fill {
+  display: block;
+  height: 100%;
+  background: linear-gradient(90deg, #6366f1, #a5b4fc);
+  border-radius: 999px;
 }
 
 .stat-value {
   font-weight: 700;
+  text-align: right;
 }
 
 .poke-pop-moves {
   display: flex;
-  flex-wrap: wrap;
-  gap: 0.2rem 0.6rem;
-  color: #94a3b8;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.poke-pop-move {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem;
+  white-space: nowrap;
+}
+
+.poke-pop-move-name {
+  color: #cbd5e1;
   text-transform: capitalize;
-  max-width: 220px;
-  white-space: normal;
 }
 
 /* shiny */
@@ -859,12 +932,6 @@ input.dup {
   font-weight: 700;
 }
 
-.poke-pop-move {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
 /* v7: admin mode, tamper badge, self-destruct, loading flavor */
 .admin-toggle {
   display: flex;
@@ -968,4 +1035,10 @@ input.dup {
   text-align: center;
   color: #475569;
   font-size: 0.75rem;
+}
+
+.pause-toggle.active {
+  background: #f59e0b;
+  border-color: #f59e0b;
+  color: #1e1e1e;
 }

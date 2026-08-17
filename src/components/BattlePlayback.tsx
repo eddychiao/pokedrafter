@@ -72,6 +72,7 @@ export function BattlePlayback({ matches, onDone }: Props) {
   const [matchIndex, setMatchIndex] = useState(0);
   const [eventIndex, setEventIndex] = useState(0);
   const [speedIndex, setSpeedIndex] = useState(1);
+  const [paused, setPaused] = useState(false);
   const logRef = useRef<HTMLDivElement>(null);
 
   const match = matches[matchIndex];
@@ -83,6 +84,7 @@ export function BattlePlayback({ matches, onDone }: Props) {
   const records = useMemo(() => computeRecords(matches, completedCount), [matches, completedCount]);
 
   useEffect(() => {
+    if (paused) return;
     const timer = setTimeout(() => {
       if (!matchFinished) {
         setEventIndex(eventIndex + 1);
@@ -94,7 +96,7 @@ export function BattlePlayback({ matches, onDone }: Props) {
       }
     }, SPEEDS[speedIndex].ms);
     return () => clearTimeout(timer);
-  }, [matchIndex, eventIndex, speedIndex, matchFinished, lastMatch, onDone]);
+  }, [matchIndex, eventIndex, speedIndex, matchFinished, lastMatch, onDone, paused]);
 
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight });
@@ -115,6 +117,9 @@ export function BattlePlayback({ matches, onDone }: Props) {
           Match {matchIndex + 1} / {matches.length}
         </h2>
         <div className="battle-controls">
+          <button className={`pause-toggle ${paused ? 'active' : ''}`} onClick={() => setPaused((p) => !p)}>
+            {paused ? '▶ Resume' : '⏸ Pause'}
+          </button>
           {SPEEDS.map((s, i) => (
             <button
               key={s.label}

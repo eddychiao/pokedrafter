@@ -57,9 +57,10 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
                   title={s.combatant.trainer.name}
                 />
                 {s.combatant.team.name}
+                <span className="standing-trainer-name">({s.combatant.trainer.name})</span>
               </span>
               <span className="standing-pokemon">
-                {s.combatant.trainer.name} · {s.combatant.pokemon.name}
+                {s.combatant.pokemon.name}
                 {s.combatant.pokemon.shiny && <span className="shiny-chip">✨ shiny</span>}
                 {s.combatant.pokemon.manual && (
                   <span className="tamper-badge" title="Manually set in admin mode">
@@ -68,13 +69,13 @@ export function Results({ standings, config, onReplay, onNewDraft }: Props) {
                 )}
               </span>
             </div>
-            <span className="record">
-              {s.wins}W–{s.losses}L
-              <br />
-              <span className="dmg-dealt">{s.damageDealt} dmg dealt</span>
-              <br />
-              <span className="dmg-taken">{s.damageTaken} dmg taken</span>
-            </span>
+            <div className="record">
+              <span className="record-wl-badge">
+                {s.wins}W – {s.losses}L
+              </span>
+              <span className="record-dmg-line dmg-dealt">{s.damageDealt} dealt</span>
+              <span className="record-dmg-line dmg-taken">{s.damageTaken} taken</span>
+            </div>
           </li>
         ))}
       </ol>

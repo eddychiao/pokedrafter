@@ -14,6 +14,8 @@ export function TamperBadge() {
   );
 }
 
+const MAX_STAT = 255;
+
 export function PokemonStatCard({ pokemon }: { pokemon: Pokemon }) {
   const rows: [string, number][] = [
     ['HP', pokemon.stats.hp],
@@ -25,9 +27,11 @@ export function PokemonStatCard({ pokemon }: { pokemon: Pokemon }) {
   ];
   return (
     <div className="hover-pop poke-pop">
-      <div className="poke-pop-name">
-        {pokemon.name}
-        <span className="level-tag">Lv.{LEVEL}</span>
+      <div className="poke-pop-header">
+        <span className="poke-pop-name">
+          {pokemon.name}
+          <span className="level-tag">Lv.{LEVEL}</span>
+        </span>
         {pokemon.shiny && <ShinyChip />}
         {pokemon.manual && <TamperBadge />}
       </div>
@@ -36,19 +40,30 @@ export function PokemonStatCard({ pokemon }: { pokemon: Pokemon }) {
           <TypeBadge key={t} type={t} />
         ))}
       </div>
+
+      <div className="poke-pop-section-label">Base stats</div>
       <div className="poke-pop-stats">
         {rows.map(([label, value]) => (
-          <div key={label}>
+          <div className="poke-pop-stat-row" key={label}>
             <span className="stat-label">{label}</span>
+            <span className="stat-bar-track">
+              <span
+                className="stat-bar-fill"
+                style={{ width: `${Math.min(100, (value / MAX_STAT) * 100)}%` }}
+              />
+            </span>
             <span className="stat-value">{value}</span>
           </div>
         ))}
       </div>
+
+      <div className="poke-pop-section-label">Moves</div>
       <div className="poke-pop-moves">
         {pokemon.moves.map((m) => (
-          <span className="poke-pop-move" key={m.name}>
-            {m.name} <TypeBadge type={m.type} />
-          </span>
+          <div className="poke-pop-move" key={m.name}>
+            <span className="poke-pop-move-name">{m.name}</span>
+            <TypeBadge type={m.type} />
+          </div>
         ))}
       </div>
     </div>
