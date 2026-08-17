@@ -1417,3 +1417,42 @@ input.dup {
     text-align: right;
   }
 }
+
+/* v15: mobile battle layout fix — the desktop 1fr/330px rule was winning the cascade
+   over the earlier mobile override, squeezing the leaderboard beside the arena. */
+@media (max-width: 720px) {
+  .battle-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .records {
+    width: 100%;
+  }
+
+  .sprite-box > img {
+    width: 96px;
+    height: 96px;
+  }
+
+  /* Fixed heights so panels don't jump as log lines / damage pops come and go */
+  .fighter {
+    min-height: 200px;
+  }
+
+  .battle-log {
+    height: 220px;
+  }
+}
+
+/* v16: new-draft prompt spacing */
+.keep-seeds-ask {
+  gap: 0.75rem;
+}
+
+.keep-seeds-ask label {
+  margin-right: 0.75rem;
+}
+
+.keep-seeds-ask button {
+  padding: 0.45rem 1.2rem;
+}
