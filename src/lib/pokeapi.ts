@@ -115,6 +115,14 @@ async function fetchJson<T>(url: string): Promise<T> {
 
 const STRUGGLE: Move = { name: 'struggle', power: 50, accuracy: 100, type: 'normal', damageClass: 'physical' };
 
+/** Filler for move-poor Pokémon (Ditto, Magikarp, ...) — believable basics instead of repeated Struggle. */
+const BASIC_FILLER_MOVES: Move[] = [
+  { name: 'tackle', power: 40, accuracy: 100, type: 'normal', damageClass: 'physical' },
+  { name: 'scratch', power: 40, accuracy: 100, type: 'normal', damageClass: 'physical' },
+  { name: 'pound', power: 40, accuracy: 100, type: 'normal', damageClass: 'physical' },
+  { name: 'quick attack', power: 40, accuracy: 100, type: 'normal', damageClass: 'physical' },
+];
+
 const MAX_MOVE_LOOKUPS = 16;
 const MOVES_PER_POKEMON = 4;
 
@@ -140,8 +148,12 @@ async function pickMoves(moveUrls: string[], seed: string): Promise<Move[]> {
       if (!m || m.power === null || m.power <= 0 || m.damage_class.name === 'status') continue;
       // Self-destruct moves are mostly filtered out; the rest of the list still fills up normally.
       if (SELF_DESTRUCT_MOVES.has(m.name) && rng() >= SELF_DESTRUCT_SURVIVAL_CHANCE) continue;
+      const name = m.name.replace(/-/g, ' ');
+      // A move can appear more than once in a Pokémon's learnset (different learn methods
+      // across game versions); don't waste a slot repeating one we've already got.
+      if (moves.some((existing) => existing.name === name)) continue;
       moves.push({
-        name: m.name.replace(/-/g, ' '),
+        name,
         power: m.power,
         accuracy: m.accuracy ?? 100,
         type: m.type.name,
@@ -151,10 +163,17 @@ async function pickMoves(moveUrls: string[], seed: string): Promise<Move[]> {
     }
   }
 
-  // Extremely move-poor Pokémon (e.g. Ditto) fall back to Struggle to still hit the count.
+  // Extremely move-poor Pokémon (e.g. Ditto, Magikarp) get filled out with basic moves
+  // instead of repeating Struggle — Struggle only shows up if even those are exhausted,
+  // which can't happen given 4 unique basics and at most 4 needed slots.
+  for (const filler of BASIC_FILLER_MOVES) {
+    if (moves.length >= MOVES_PER_POKEMON) break;
+    if (!moves.some((existing) => existing.name === filler.name)) moves.push(filler);
+  }
   while (moves.length < MOVES_PER_POKEMON) moves.push(STRUGGLE);
 
-  return moves;
+  // Defensive clamp: the loops above already guarantee this, but never risk exceeding it.
+  return moves.slice(0, MOVES_PER_POKEMON);
 }
 
 export interface FetchPokemonOptions {

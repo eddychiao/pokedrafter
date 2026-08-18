@@ -113,7 +113,9 @@ export default function App() {
           config={config}
           onReplay={() => setPhase({ name: 'battle' })}
           onNewDraft={({ keepNames }) => {
-            window.location.hash = '';
+            // location.hash = '' leaves a trailing "#" in the URL; replaceState drops it
+            // entirely so a new draft actually starts at the clean base URL.
+            window.history.replaceState(null, '', window.location.pathname + window.location.search);
             setTournament(null);
             setStaleLink(false);
             if (!keepNames) clearSetup();
